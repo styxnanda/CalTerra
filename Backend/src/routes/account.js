@@ -4,6 +4,8 @@ const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const pool = require("../db.js");
 
+
+const baseURI = "/account";
 // register
 router.post("/register", async (req, res) => {
   let { username, name, email, password } = req.body;
@@ -49,7 +51,7 @@ router.post("/login/local", (req, res, next) => {
     }
     req.login(user, (err) => {
       if (err) throw err;
-      res.json("Logged in!");
+      res.json(user);
     });
   })(req, res, next);
 });
@@ -68,9 +70,33 @@ router.get("/logout", (req, res) => {
   });
 });
 
-// check if user is logged in
-router.get("/user", (req, res) => {
-  res.json(req.user);
+// session checker
+const sessionChecker = (req, res, next) => {
+  // console.log(req.session.passport);
+  if (req.session.passport) {
+      next();
+  } else {
+      res.redirect(baseURI+'/sessionError');
+  }
+};
+
+// session error
+router.get("/sessionError", (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: "User not logged in or session expired",
+  });
+});
+
+// get user endpoint
+router.get("/user", sessionChecker, async (req, res) => {
+  try {
+      const user = await pool.query("SELECT * FROM users WHERE id = $1", [req.session.passport.user]);
+      res.json(user.rows[0]);
+  } catch (error) {
+      console.log(error.message);
+      res.status(500).json("Server error");
+  }
 });
 
 module.exports = router;
