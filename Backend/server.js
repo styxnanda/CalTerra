@@ -4,6 +4,7 @@ const passport = require('passport');
 const cors = require('cors');
 const connect_pg = require('connect-pg-simple');
 const account_router = require('./src/routes/account.js');
+const calculation_router = require('./src/routes/calculation.js');
 require('./src/passport.js')
 
 const pool = require('./src/db.js');
@@ -56,6 +57,7 @@ router.get('/', (req, res) => {
 
 app.use('/', router);
 app.use('/account', account_router);
+app.use('/calculation', calculation_router);
 
 
 app.listen(port, () => {
