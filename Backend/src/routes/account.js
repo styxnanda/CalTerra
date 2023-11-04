@@ -99,4 +99,4 @@ router.get("/user", sessionChecker, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = [router, sessionChecker];
