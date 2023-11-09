@@ -6,6 +6,7 @@ const connect_pg = require('connect-pg-simple');
 const account_router = require('./src/routes/account.js');
 const calculation_router = require('./src/routes/calculation.js');
 const leaderboard_router = require('./src/routes/leaderboard.js');
+const news_router = require('./src/routes/news.js');
 require('./src/passport.js')
 
 const pool = require('./src/db.js');
@@ -60,6 +61,7 @@ app.use('/', router);
 app.use('/account', account_router);
 app.use('/calculation', calculation_router);
 app.use('/leaderboard', leaderboard_router);
+app.use('/news', news_router);
 
 
 app.listen(port, () => {
