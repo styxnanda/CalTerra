@@ -39,10 +39,9 @@ router.get("/", sessionChecker, async (req, res) => {
       res.send(JSON.parse(cachedNews));
     } else {
       const newsData = await fetchNewsFromAPI();
-      console.log(newsData);
       if (newsData) {
         saveNewsCache(newsData);
-        res.send(newsData);
+        res.send(newsData.results);
       } else {
         res.status(500).send("Failed to fetch from API router.");
       }
