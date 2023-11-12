@@ -23,6 +23,22 @@ passport.use(
                 return done(null, false);
             }
 
+            // get current year and month
+            const currentYearMonth = new Date().toISOString().slice(0, 7);
+
+            // check if user has current year and month record
+            const userMonthlyEmission = await pool.query(
+                "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+                [user.rows[0].id, currentYearMonth]
+            );
+            if (userMonthlyEmission.rows.length === 0) {
+                // create new user current monthly emission to db
+                await pool.query(
+                    `INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) 
+                    VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *`,
+                    [user.rows[0].id, currentYearMonth, 0]
+                );
+            }
             // return user
             return done(null, user.rows[0]);
         } catch (error) {

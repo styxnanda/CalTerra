@@ -27,6 +27,12 @@ router.post("/register", async (req, res) => {
       "INSERT INTO users (username, name, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING *",
       [username, name, email, hashedPassword]
     );
+    // save new user current monthly emission to db
+    const newMonthEmission = await pool.query(
+       `INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) 
+       VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *`,
+      [newUser.rows[0].id, new Date().toISOString().slice(0, 7), 0]
+    );
 
     // login user after register
     req.login(newUser.rows[0], (err) => {
