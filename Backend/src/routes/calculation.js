@@ -77,6 +77,9 @@ router.get("/sessionError", (req, res) => {
 
 // vehicle emission calculation
 router.post("/vehicle", sessionChecker, async (req, res) => {
+    // current year and month
+    const currentYearMonth = new Date().toISOString().slice(0, 7);
+
     try {
         let { vehicle_type, distance, fuel_type, vehicle_size } = req.body;
         let emission_factor = 0;
@@ -87,21 +90,35 @@ router.post("/vehicle", sessionChecker, async (req, res) => {
         emission_factor = filter_data[0].factor; 
         carbon_emission = emission_factor * distance;
 
-        const carbon_footprints = await pool.query(
-            "INSERT INTO carbon_footprints (user_id, total_emission) VALUES ($1, $2) RETURNING *",
-            [req.session.passport.user, carbon_emission]
+         // check if user has current year and month record
+         const userMonthlyEmission = await pool.query(
+            "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+            [req.session.passport.user, currentYearMonth]
+        );
+        if (userMonthlyEmission.rows.length === 0) {
+            // create new user current monthly emission to db
+            await pool.query(
+                "INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *",
+                [req.session.passport.user, currentYearMonth, 0]
+            );
+        }
+        // else, update the current monthly emission
+        const currentMonthlyEmission =  await pool.query(
+            "UPDATE user_monthly_emissions SET monthly_total_emission = monthly_total_emission + $1 WHERE user_id = $2 AND year_month = to_date($3, 'YYYY-MM')",
+            [carbon_emission, req.session.passport.user, currentYearMonth]
         );
 
-        const vehicle_contrib = await pool.query(
-            "INSERT INTO vehicle_contributors (carbon_footprint_id, vehicle_type, distance, fuel_type, vehicle_size) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
-            [carbon_footprints.rows[0].id, vehicle_type, distance, fuel_type, vehicle_size]);
+        const vehicle_emission = await pool.query(
+            "INSERT INTO vehicle_emissions (user_id, vehicle_type, distance, fuel_type, emission) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [req.session.passport.user, vehicle_type, distance, fuel_type, carbon_emission]
+        );
 
         res.json({
             success: true,
             message: "Vehicle carbon emission calculated successfully",
             data: {
-                carbon_footprints: carbon_footprints.rows[0],
-                vehicle_contributors: vehicle_contrib.rows[0],
+                current_monthly_emission: currentMonthlyEmission.rows[0],
+                vehicle_emissions: vehicle_emission.rows[0],
             },
         });
     } catch (err) {
@@ -115,6 +132,7 @@ router.post("/vehicle", sessionChecker, async (req, res) => {
 
 // flight emission calculation
 router.post("/flight", sessionChecker, async (req, res) => {
+    const currentYearMonth = new Date().toISOString().slice(0, 7);
     try {
         let { from, to, trip_type, distance_op, flight_class } = req.body;
         let carbon_emission = 0;
@@ -142,21 +160,35 @@ router.post("/flight", sessionChecker, async (req, res) => {
             carbon_emission = carbon_emission * 2;
         }
 
-        const carbon_footprints = await pool.query(
-            "INSERT INTO carbon_footprints (user_id, total_emission) VALUES ($1, $2) RETURNING *",
-            [req.session.passport.user, carbon_emission]
+        // check if user has current year and month record
+        const userMonthlyEmission = await pool.query(
+            "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+            [req.session.passport.user, currentYearMonth]
+        );
+        if (userMonthlyEmission.rows.length === 0) {
+            // create new user current monthly emission to db
+            await pool.query(
+                "INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *",
+                [req.session.passport.user, currentYearMonth, 0]
+            );
+        }
+        // else, update the current monthly emission
+        const currentMonthlyEmission =  await pool.query(
+            "UPDATE user_monthly_emissions SET monthly_total_emission = monthly_total_emission + $1 WHERE user_id = $2 AND year_month = to_date($3, 'YYYY-MM')",
+            [carbon_emission, req.session.passport.user, currentYearMonth]
         );
 
-        const flight_contrib = await pool.query(
-            "INSERT INTO flight_contributors (carbon_footprint_id, departure_airport, destination_airport, flight_distance, trip_type, flight_class) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
-            [carbon_footprints.rows[0].id, from, to, distance, trip_type, flight_class]);
+        const flight_emissions = await pool.query(
+            "INSERT INTO flight_emissions (user_id, departure_airport, destination_airport, flight_distance, emission) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [req.session.passport.user, from, to, distance, carbon_emission]
+        );
 
         res.json({
             success: true,
             message: "Flight carbon emission calculated successfully",
             data: {
-                carbon_footprints: carbon_footprints.rows[0],
-                flight_contributors: flight_contrib.rows[0],
+                current_monthly_emission: currentMonthlyEmission.rows[0],
+                flight_contributors: flight_emissions.rows[0],
             },
         });
     } catch (err) {
@@ -170,40 +202,53 @@ router.post("/flight", sessionChecker, async (req, res) => {
 
 // power sources emission calculation
 router.post("/power_sources", sessionChecker, async (req, res) => {
+    const currentYearMonth = new Date().toISOString().slice(0, 7);
     try {
         let { power_sources_type, usage } = req.body; // power sources type: electricity, gas, water
         let carbon_emission = 0;
-        let query = "";
         switch(power_sources_type){
             case "electricity":
                 carbon_emission = 0.6745 * usage; // in Kwh
-                query = "INSERT INTO power_sources_contributors (carbon_footprint_id, power_source_type, usage_kwh) VALUES ($1, $2, $3) RETURNING *";
                 break;
             case "gas":
                 carbon_emission = 2.02135 * usage; // in m3
-                query = "INSERT INTO power_sources_contributors (carbon_footprint_id, power_source_type, usage_cubic_meter) VALUES ($1, $2, $3) RETURNING *";
                 break;
             case "water":
                 carbon_emission = 0.14900 * usage; // in m3
-                query = "INSERT INTO power_sources_contributors (carbon_footprint_id, power_source_type, usage_cubic_meter) VALUES ($1, $2, $3) RETURNING *";
                 break;
             default:
                 break;
         }
 
-        const carbon_footprints = await pool.query(
-            "INSERT INTO carbon_footprints (user_id, total_emission) VALUES ($1, $2) RETURNING *",
-            [req.session.passport.user, carbon_emission]
+        // check if user has current year and month record
+        const userMonthlyEmission = await pool.query(
+            "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+            [req.session.passport.user, currentYearMonth]
+        );
+        if (userMonthlyEmission.rows.length === 0) {
+            // create new user current monthly emission to db
+            await pool.query(
+                "INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *",
+                [req.session.passport.user, currentYearMonth, 0]
+            );
+        }
+        // else, update the current monthly emission
+        const currentMonthlyEmission =  await pool.query(
+            "UPDATE user_monthly_emissions SET monthly_total_emission = monthly_total_emission + $1 WHERE user_id = $2 AND year_month = to_date($3, 'YYYY-MM')",
+            [carbon_emission, req.session.passport.user, currentYearMonth]
         );
 
-        const power_sources_contrib = await pool.query(query, [carbon_footprints.rows[0].id, power_sources_type, usage]);
+        const power_sources_emissions = await pool.query(
+            "INSERT INTO power_sources_emissions (user_id, power_source_type, usage_kwh, emission) VALUES ($1, $2, $3, $4) RETURNING *",
+            [req.session.passport.user, power_sources_type, usage, carbon_emission]
+        );
 
         res.json({
             success: true,
             message: "Power sources carbon emission calculated successfully",
             data: {
-                carbon_footprints: carbon_footprints.rows[0],
-                power_sources_contributors: power_sources_contrib.rows[0],
+                current_monthly_emission: currentMonthlyEmission.rows[0],
+                power_sources_emissions: power_sources_emissions.rows[0],
             },
         });
     } catch (err) {
@@ -218,36 +263,50 @@ router.post("/power_sources", sessionChecker, async (req, res) => {
 
 // home appliances emission calculation
 router.post("/home_appliances", sessionChecker, async (req, res) => {
+    const currentYearMonth = new Date().toISOString().slice(0, 7);
     try {
         let { appliances_type, duration_or_cycles } = req.body;
         let carbon_emission = 0;
-        let query = "";
         let filter_data = home_appliances_emission_factor.filter((data) => data.appliances_type == appliances_type);
         // console.log(filter_data);
         carbon_emission = filter_data[0].factor * duration_or_cycles;
         switch (filter_data[0].unit_count) {
             case "hours":
-                query = "INSERT INTO home_appliances_contributors (carbon_footprint_id, appliance_type, duration_hours) VALUES ($1, $2, $3) RETURNING *";
                 break;
             case "cycles":
-                query = "INSERT INTO home_appliances_contributors (carbon_footprint_id, appliance_type, wash_cycles) VALUES ($1, $2, $3) RETURNING *";
                 break;
             default:
                 break;
         }
-        const carbon_footprints = await pool.query(
-            "INSERT INTO carbon_footprints (user_id, total_emission) VALUES ($1, $2) RETURNING *",
-            [req.session.passport.user, carbon_emission]
+        // check if user has current year and month record
+        const userMonthlyEmission = await pool.query(
+            "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+            [req.session.passport.user, currentYearMonth]
+        );
+        if (userMonthlyEmission.rows.length === 0) {
+            // create new user current monthly emission to db
+            await pool.query(
+                "INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *",
+                [req.session.passport.user, currentYearMonth, 0]
+            );
+        }
+        // else, update the current monthly emission
+        const currentMonthlyEmission =  await pool.query(
+            "UPDATE user_monthly_emissions SET monthly_total_emission = monthly_total_emission + $1 WHERE user_id = $2 AND year_month = to_date($3, 'YYYY-MM')",
+            [carbon_emission, req.session.passport.user, currentYearMonth]
         );
 
-        const home_appliances_contrib = await pool.query(query, [carbon_footprints.rows[0].id, appliances_type, duration_or_cycles]);
+        const home_appliances_emissions = await pool.query(
+            "INSERT INTO home_appliances_emissions (user_id, appliance_type, duration_hours, emission) VALUES ($1, $2, $3, $4) RETURNING *",
+            [req.session.passport.user, appliances_type, duration_or_cycles, carbon_emission]
+        );
 
         res.json({
             success: true,
             message: "Home appliances carbon emission calculated successfully",
             data: {
-                carbon_footprints: carbon_footprints.rows[0],
-                home_appliances_contributors: home_appliances_contrib.rows[0],
+                current_monthly_emission: currentMonthlyEmission.rows[0],
+                home_appliances_emission: home_appliances_emissions.rows[0],
             },
         })
         
@@ -262,28 +321,43 @@ router.post("/home_appliances", sessionChecker, async (req, res) => {
 
 // food emission calculation
 router.post("/food", sessionChecker, async (req, res) => {
+    const currentYearMonth = new Date().toISOString().slice(0, 7);
     try {
-        let { food_diet } = req.body;
+        let { food_type } = req.body;
         let carbon_emission = 0;
 
-        let filter_data = food_emission_factor.filter((data) => data.food_diet == food_diet);
+        let filter_data = food_emission_factor.filter((data) => data.food_type == food_type);
         carbon_emission = filter_data[0].factor;
 
-        const carbon_footprints = await pool.query(
-            "INSERT INTO carbon_footprints (user_id, total_emission) VALUES ($1, $2) RETURNING *",
-            [req.session.passport.user, carbon_emission]
+        // check if user has current year and month record
+        const userMonthlyEmission = await pool.query(
+            "SELECT * FROM user_monthly_emissions WHERE user_id = $1 AND year_month = to_date($2, 'YYYY-MM')",
+            [req.session.passport.user, currentYearMonth]
+        );
+        if (userMonthlyEmission.rows.length === 0) {
+            // create new user current monthly emission to db
+            await pool.query(
+                "INSERT INTO user_monthly_emissions (user_id, year_month, monthly_total_emission) VALUES ($1, to_date($2, 'YYYY-MM'), $3) RETURNING *",
+                [req.session.passport.user, currentYearMonth, 0]
+            );
+        }
+        // else, update the current monthly emission
+        const currentMonthlyEmission =  await pool.query(
+            "UPDATE user_monthly_emissions SET monthly_total_emission = monthly_total_emission + $1 WHERE user_id = $2 AND year_month = to_date($3, 'YYYY-MM')",
+            [carbon_emission, req.session.passport.user, currentYearMonth]
         );
 
-        const food_contrib = await pool.query(
-            "INSERT INTO food_contributors (carbon_footprint_id, food_diet) VALUES ($1, $2) RETURNING *", 
-            [carbon_footprints.rows[0].id, food_diet]);
+        const food_emissions = await pool.query(
+            "INSERT INTO food_emissions (user_id, food_type, emission) VALUES ($1, $2, $3) RETURNING *",
+            [req.session.passport.user, food_type, carbon_emission]
+        );
 
         res.json({
             success: true,
             message: "Food carbon emission calculated successfully",
             data: {
-                carbon_footprints: carbon_footprints.rows[0],
-                food_contributors: food_contrib.rows[0],
+                current_monthly_emission: currentMonthlyEmission.rows[0],
+                food_emissions: food_emissions.rows[0],
             },
         });
     } catch (err) {
