@@ -5,7 +5,7 @@
 -- Dumped from database version 16.0
 -- Dumped by pg_dump version 16.0
 
--- Started on 2023-11-09 23:00:39
+-- Started on 2023-11-16 11:28:43
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -158,7 +158,7 @@ CREATE TABLE public.power_sources_emissions (
     user_id uuid,
     "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     power_source_type character varying(255) NOT NULL,
-    usage_kwh numeric,
+    usage numeric,
     emission numeric NOT NULL
 );
 
@@ -273,7 +273,8 @@ CREATE TABLE public.vehicle_emissions (
     vehicle_type character varying(255) NOT NULL,
     distance numeric,
     fuel_type character varying(255),
-    emission numeric NOT NULL
+    emission numeric NOT NULL,
+    vehicle_size character varying(255)
 );
 
 
@@ -388,7 +389,7 @@ COPY public.home_appliances_emissions (id, user_id, "timestamp", appliance_type,
 -- Data for Name: power_sources_emissions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.power_sources_emissions (id, user_id, "timestamp", power_source_type, usage_kwh, emission) FROM stdin;
+COPY public.power_sources_emissions (id, user_id, "timestamp", power_source_type, usage, emission) FROM stdin;
 \.
 
 
@@ -399,6 +400,7 @@ COPY public.power_sources_emissions (id, user_id, "timestamp", power_source_type
 --
 
 COPY public.session (sid, sess, expire) FROM stdin;
+8giiI2_BDgYnxa8aIWtFtq0DYgPj8eak	{"cookie":{"originalMaxAge":604800000,"expires":"2023-11-20T06:25:42.835Z","secure":false,"httpOnly":true,"path":"/","sameSite":"lax"},"passport":{"user":"9935d7c0-f6e0-4977-b259-04a8135baf66"}}	2023-11-20 13:25:51
 \.
 
 
@@ -409,6 +411,7 @@ COPY public.session (sid, sess, expire) FROM stdin;
 --
 
 COPY public.user_monthly_emissions (id, user_id, year_month, monthly_total_emission) FROM stdin;
+1	9935d7c0-f6e0-4977-b259-04a8135baf66	2023-11-01	0
 \.
 
 
@@ -429,7 +432,7 @@ COPY public.users (id, username, name, email, password_hash, registration_date) 
 -- Data for Name: vehicle_emissions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.vehicle_emissions (id, user_id, "timestamp", vehicle_type, distance, fuel_type, emission) FROM stdin;
+COPY public.vehicle_emissions (id, user_id, "timestamp", vehicle_type, distance, fuel_type, emission, vehicle_size) FROM stdin;
 \.
 
 
@@ -475,7 +478,7 @@ SELECT pg_catalog.setval('public.power_sources_emissions_id_seq', 1, false);
 -- Name: user_monthly_emissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_monthly_emissions_id_seq', 1, false);
+SELECT pg_catalog.setval('public.user_monthly_emissions_id_seq', 1, true);
 
 
 --
@@ -640,7 +643,7 @@ ALTER TABLE ONLY public.vehicle_emissions
     ADD CONSTRAINT vehicle_emissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
--- Completed on 2023-11-09 23:00:39
+-- Completed on 2023-11-16 11:28:44
 
 --
 -- PostgreSQL database dump complete
