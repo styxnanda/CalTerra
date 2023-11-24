@@ -65,7 +65,7 @@ class _LoginState extends State<Login> {
                             style: TextStyle(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.indigo,
                           ),
                         ),
                       )
@@ -73,6 +73,78 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Don't have an account yet?"),
+                    Container(
+                      margin: EdgeInsets.only(
+                        left: 5,
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushNamed(
+                            "register",
+                          );
+                        },
+                        child: Text("Click here"),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                child: Stack(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 60,
+                      ),
+                      child: Divider(
+                        color: Colors.black,
+                        thickness: 1.5,
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                          padding: EdgeInsets.all(5),
+                          color: Colors.white,
+                          child: Text("OR")),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 60, vertical: 5),
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 20,
+                        width: 20,
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        child: Image.asset(
+                          'assets/image/google.png',
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: Text(
+                          "Login with Google",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                  ),
+                ),
+              )
             ],
           ),
         ),

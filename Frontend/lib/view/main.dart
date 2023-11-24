@@ -1,3 +1,4 @@
+import 'package:calterra/routing.dart';
 import 'package:calterra/view/home.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Home(),
+      onGenerateRoute: generateRoute,
+      home: Home(),
     );
   }
 }
