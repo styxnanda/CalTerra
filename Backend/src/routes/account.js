@@ -105,4 +105,15 @@ router.get("/user", sessionChecker, async (req, res) => {
   }
 });
 
+// get user monthly emission endpoint
+router.get("/user/monthly-emission", sessionChecker, async (req, res) => {
+  try {
+      const user = await pool.query("SELECT * FROM user_monthly_emissions WHERE user_id = $1", [req.session.passport.user]);
+      res.json(user.rows[0]);
+  } catch (error) {
+      console.log(error.message);
+      res.status(500).json("Server error");
+  }
+});
+
 module.exports = [router, sessionChecker];

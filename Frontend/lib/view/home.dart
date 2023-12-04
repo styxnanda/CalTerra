@@ -58,7 +58,11 @@ class _HomeState extends State<Home> {
                   icon: Icon(
                     Icons.group_rounded,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      "account",
+                    );
+                  },
                 ),
                 IconButton(
                   icon: Icon(
