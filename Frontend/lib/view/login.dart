@@ -1,15 +1,86 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:calterra/viewModel/view_login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
+import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
   const Login({super.key});
-
+  
+  
   @override
   State<Login> createState() => _LoginState();
 }
 
+Future<http.Response> login (BuildContext context, username, String password) async {
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:4322/account/login/local'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(
+      <String, String>{
+        'username': username,
+        'password': password,
+      },
+    ),
+  );
+
+  if (response.statusCode == 200) {
+    showDialog(
+      context: context, 
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Login Success"),
+        content: Text("You have successfully logged in"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // navigate to home
+              Navigator.of(context).pushNamed(
+                "home",
+              );
+            }, 
+            child: Text("OK")
+          )
+        ],
+      )
+    );
+    String? cookie = response.headers['set-cookie'];
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('cookie', cookie!);
+    return response;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    showDialog(
+      context: context, 
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Login Failed"),
+        content: Text("You have failed to log in"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            }, 
+            child: Text("OK")
+          )
+        ],
+      )
+      );
+    throw Exception(response.body);
+  }
+}
+
 class _LoginState extends State<Login> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();  
+
+  String username = "";
+  String password = "";
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder.reactive(
@@ -49,10 +120,12 @@ class _LoginState extends State<Login> {
                       Container(
                         margin: EdgeInsets.only(bottom: 5),
                         child: TextFormField(
+                          controller: _usernameController,
                           decoration: InputDecoration(hintText: "Username"),
                         ),
                       ),
                       TextFormField(
+                        controller: _passwordController,
                         decoration: InputDecoration(hintText: "Password"),
                       ),
                       Container(
@@ -60,9 +133,9 @@ class _LoginState extends State<Login> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pushNamed(
-                              "home",
-                            );
+                            username = _usernameController.text;
+                            password = _passwordController.text;
+                            login(context, username, password);
                           },
                           child: Text(
                             "Login",

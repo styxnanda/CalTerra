@@ -75,6 +75,25 @@ router.get("/sessionError", (req, res) => {
     });
 });
 
+// get airport
+router.get("/airport", async (req, res) => {
+    try{
+        const airport = await pool.query(
+            "SELECT iata, airport FROM airport WHERE country_code IN ('ID', 'MY', 'SG', 'PH', 'SA')"
+        );
+        res.json(
+            airport.rows
+        );
+    }
+    catch(err){
+        console.error(err.message);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+});
+
 // vehicle emission calculation
 router.post("/vehicle", sessionChecker, async (req, res) => {
     // current year and month
