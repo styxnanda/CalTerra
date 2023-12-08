@@ -22,7 +22,11 @@ class _HomeState extends State<Home> {
           width: 50,
           child: FittedBox(
             child: FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {                
+                Navigator.of(context).pushNamed(
+                  "vehicleEmission",
+                );
+              },
               child: Icon(
                 Icons.add,
               ),

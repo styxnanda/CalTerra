@@ -12,10 +12,12 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return ViewModelBuilder.reactive(
       viewModelBuilder: () => ViewAccount(),
       builder: (context, model, child) => Scaffold(
-        backgroundColor: Color.fromARGB(255, 99, 146, 38),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: SizedBox(
           height: AppBar().preferredSize.height,
@@ -69,72 +71,67 @@ class _AccountState extends State<Account> {
             ),
           ),
         ),
-        body: Container(
-          margin: EdgeInsets.only(top: 20, left: 10, right: 10),
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.6,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40)
+        body: SingleChildScrollView(
+          child: Container(
+            width: screenWidth,
+            height: screenHeight,
+            color: Color.fromARGB(255, 99, 146, 38),
+            child: Stack(
+              children: [
+                // text to display account name
+                Positioned(
+                  top: screenHeight * 0.1,
+                  left: screenWidth * 0.05,
+                  child: SizedBox(
+                    width: screenWidth,
+                    child: ListTile(
+                      title: Text(
+                        "Account Name",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500
+                        ),
+                      ),
+                      subtitle: Text(
+                        "Account Email",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal
+                        ),
+                      ),
+                      // profile picture
+                      leading: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: AssetImage("assets/image/Logo.png"),
+                      ),
+                    ),
                   )
                 ),
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Text(
-                        "Account",
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
+                Positioned(
+                  // put at the bottom
+                  top: screenHeight * 0.25,  
+                  child: Container(              
+                    width: screenWidth * 0.98,
+                    height: screenHeight * 0.75,
+                    margin: EdgeInsets.only(left: 5, right: 5),
+                    // border radius
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        )
+                      )
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Text(
-                        "Name",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 10),
-                      child: Text(
-                        "John Doe",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Text(
-                        "Email",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-              
-          ),
-        ),
+                  ),
+                )
+              ],
+            ),
+          )
+        )
       ),
     );
   } 

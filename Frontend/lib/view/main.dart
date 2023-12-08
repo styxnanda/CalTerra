@@ -5,6 +5,8 @@ import 'package:calterra/view/login.dart';
 import 'package:flutter/material.dart';
 import 'package:calterra/view/startup.dart';
 import 'package:calterra/view/flightEmission.dart';
+import 'package:calterra/view/vehicleEmission.dart';
+import 'package:calterra/view/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       onGenerateRoute: generateRoute,
-      home: FlightEmission(),
+      home: Startup(),
     );
   }
 }

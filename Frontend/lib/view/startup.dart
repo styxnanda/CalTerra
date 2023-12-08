@@ -1,6 +1,7 @@
 import 'package:calterra/viewModel/view_login.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Startup extends StatefulWidget {
   const Startup({Key? key}) : super(key: key);
@@ -10,6 +11,22 @@ class Startup extends StatefulWidget {
 }
 
 class _StartupState extends State<Startup> {
+  @override
+  void initState() {
+    super.initState();
+    checkSession();
+  }
+
+  Future<void> checkSession() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // check if cookie is not empty
+    if (prefs.getString('cookie') != null) {
+      Navigator.of(context).pushNamed(
+        "home",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder.reactive(
