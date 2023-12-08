@@ -1,18 +1,102 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:calterra/viewModel/view_flight_emission.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
+// import 'package:calterra/login.dart';
+import 'package:http/http.dart' as http;
 
 enum InputType { itinerary, flightDistance  }
 enum FlightType { oneWay, returnTrip } 
 
-enum AirportList{
-  CGK('CGK: Soekarno Hatta Intl, Indonesia'),
-  SUB('SUB: Juanda Intl, Indonesia'),
-  SIN('SIN: Changi Intl, Singapore'),
-  KUL('KUL: Kuala Lumpur Intl, Malaysia');
+class Airport {
+  const Airport(this.airport, this.iata);
 
-  const AirportList(this.name);
-  final String name;
+  final String airport;
+  final String iata;
+
+  factory Airport.fromJson(Map<String, dynamic> json) {
+    return Airport(
+      json['airport'] as String,
+      json['iata'] as String,
+    );
+  }
+
+}
+
+Future<http.Response> createFlightEmission(BuildContext context, from, String to, String tripType, String flightClass) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  String? cookie = preferences.getString('cookie');
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:4322/calculation/flight'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cookie': cookie!,
+    },
+    body: jsonEncode(
+      <String, String> {
+        'from': from,
+        'to': to,
+        'trip_type': tripType,
+        'flight_class': flightClass,
+      }
+    ),
+  );
+
+  if (response.statusCode == 200) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Flight emission created successfully.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return response;
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to create flight emission.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    throw Exception(response.body);
+  }
+}
+
+
+Future<List<Airport>> fetchAirports() async {
+  final response = await http.get(Uri.parse('http://10.0.2.2:4322/calculation/airport'));
+
+  if (response.statusCode == 200) {
+    List<dynamic> jsonResponse = jsonDecode(response.body);
+    List<Airport> airports = jsonResponse.map((item) => Airport.fromJson(item)).toList();
+    return airports;
+  } else {
+    throw Exception('Failed to load airports');
+  }
 }
 
 class FlightEmission extends StatefulWidget {
@@ -28,9 +112,24 @@ class _FlightEmissionState extends State<FlightEmission>{
   final TextEditingController flightClassController = TextEditingController();
 
   InputType? _inputType = InputType.itinerary;
-  AirportList? _airportListFrom;
-  AirportList? _airportListTo;
   FlightType? _flightType = FlightType.oneWay;
+  List<Airport> airportList = []; 
+
+  Airport? selectedFromAirport;
+  Airport? selectedToAirport;
+
+  String? flight_type = "";
+  String? flight_class = "";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAirports().then((airports) {
+      setState(() {
+        airportList = airports;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +151,25 @@ class _FlightEmissionState extends State<FlightEmission>{
                 alignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Alert Dialog Title'),
+                              content: Text('Alert Dialog Content'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Close'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       child: Text(
                       'Cancel', 
                       style: TextStyle(
@@ -74,7 +191,30 @@ class _FlightEmissionState extends State<FlightEmission>{
                       ),
                   ),
                   ElevatedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      if (selectedFromAirport != null && selectedToAirport != null) {
+                        createFlightEmission(context, selectedFromAirport!.iata, selectedToAirport!.iata, flight_type!, flight_class!);
+                      } else {
+                        // Show a dialog or a snackbar to inform the user to select both airports
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Error'),
+                              content: Text('Please select both airports.'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Close'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
                     child: Text(
                       'Save', 
                       style: TextStyle(
@@ -96,7 +236,7 @@ class _FlightEmissionState extends State<FlightEmission>{
           ),
         ),
         body: SingleChildScrollView(
-            child: Container(
+          child: Container(
                 width: screenWidth,
                 height: screenHeight,
                 clipBehavior: Clip.antiAlias,
@@ -137,14 +277,12 @@ class _FlightEmissionState extends State<FlightEmission>{
                       child: Container(
                         width: screenWidth,
                         height: screenHeight * 0.8,
-                        decoration: ShapeDecoration(
+                        decoration: const ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
                             ),
                           ),
                         ),
@@ -228,22 +366,23 @@ class _FlightEmissionState extends State<FlightEmission>{
                                           fontWeight: FontWeight.normal,
                                           height: 0,
                                         ),
-                                        onSelected: (airport){
+                                          onSelected: (airport){
                                           setState(() {
-                                              _airportListFrom = airport;
-                                              print(_airportListFrom);
+                                            selectedFromAirport = airport;
+                                            print(selectedFromAirport!.airport);
                                           });
                                         },
                                         dropdownMenuEntries: 
-                                          AirportList.values.map<DropdownMenuEntry<AirportList>>((AirportList airport) {
-                                            return DropdownMenuEntry<AirportList>(
+                                          airportList.map<DropdownMenuEntry<Airport>>((Airport airport) {
+                                            return DropdownMenuEntry<Airport>(
                                               value: airport,
-                                              label: airport.name,
+                                              label: airport.airport,
                                             );
-                                          },).toList(),
+                                          }).toList(),
                                         menuStyle: MenuStyle(
                                           backgroundColor: MaterialStateProperty.all(Colors.white),
                                           surfaceTintColor: MaterialStateProperty.all(Colors.white),
+                                          maximumSize: MaterialStateProperty.all(Size(screenWidth * 0.78, 300)),
                                         ),
                                         inputDecorationTheme: InputDecorationTheme(                                    
                                           enabledBorder: OutlineInputBorder(
@@ -298,23 +437,23 @@ class _FlightEmissionState extends State<FlightEmission>{
                                           fontWeight: FontWeight.normal,
                                           height: 0,
                                         ),
-                                        dropdownMenuEntries: 
-                                          AirportList.values.map<DropdownMenuEntry<AirportList>>((AirportList airport) {
-                                            return DropdownMenuEntry<AirportList>(
-                                              value: airport,
-                                              label: airport.name,
-                                            );
-                                          },).toList(),
-                                        
-                                        onSelected: (value){
+                                        onSelected: (airport){
                                           setState(() {
-                                              _airportListTo = value;
-                                              print(_airportListTo);
+                                            selectedToAirport = airport;
+                                            print(selectedToAirport!.airport);
                                           });
                                         },
+                                        dropdownMenuEntries: 
+                                          airportList.map<DropdownMenuEntry<Airport>>((Airport airport) {
+                                            return DropdownMenuEntry<Airport>(
+                                              value: airport,
+                                              label: airport.airport,
+                                            );
+                                          }).toList(),
                                         menuStyle: MenuStyle(
                                           backgroundColor: MaterialStateProperty.all(Colors.white),
                                           surfaceTintColor: MaterialStateProperty.all(Colors.white),
+                                          maximumSize: MaterialStateProperty.all(Size(screenWidth * 0.78, 300)),
                                         ),
                                         inputDecorationTheme: InputDecorationTheme(                                    
                                           enabledBorder: OutlineInputBorder(
@@ -363,6 +502,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                             onChanged: (FlightType? value) {
                                               setState(() {
                                                 _flightType = value;
+                                                flight_type = "round";
                                               });
                                             },
                                           ),
@@ -388,6 +528,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                             onChanged: (FlightType? value) {
                                               setState(() {
                                                 _flightType = value;
+                                                flight_type = "one_way";
                                               });
                                             },
                                           ),
@@ -532,7 +673,11 @@ class _FlightEmissionState extends State<FlightEmission>{
                                             value: 'first',
                                           ),
                                         ],
-                                        onChanged: (value) {},
+                                        onChanged: (value) {
+                                          setState(() {
+                                            flight_class = value.toString();
+                                          });                                        
+                                        },
                                       ),
                                     ),
                                   ),
