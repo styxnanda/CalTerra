@@ -1,4 +1,6 @@
+import 'package:calterra/view/home.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:stacked/stacked.dart';
 import 'package:calterra/viewModel/view_account.dart';
 
@@ -18,61 +20,66 @@ class _AccountState extends State<Account> {
     return ViewModelBuilder.reactive(
       viewModelBuilder: () => ViewAccount(),
       builder: (context, model, child) => Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: SizedBox(
-          height: AppBar().preferredSize.height,
-          width: AppBar().preferredSize.width,
-          child: FittedBox(
-            child: FloatingActionButton(
-              onPressed: () {},
-              child: Icon(
-                Icons.add,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: SizedBox(
+            height: AppBar().preferredSize.height,
+            width: AppBar().preferredSize.width,
+            child: FittedBox(
+              child: FloatingActionButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.add,
+                ),
               ),
             ),
           ),
-        ),
-        bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            height: AppBar().preferredSize.height,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(
-                    Icons.home,
+          bottomNavigationBar: BottomAppBar(
+            shape: const CircularNotchedRectangle(),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              height: AppBar().preferredSize.height,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(
+                      Icons.home,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(
+                        "home",
+                      );
+                    },
                   ),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.calendar_month_rounded,
+                  IconButton(
+                    icon: Icon(
+                      Icons.calendar_month_rounded,
+                    ),
+                    onPressed: () {},
                   ),
-                  onPressed: () {},
-                ),
-                SizedBox(
-                  width: 9,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.group_rounded,
+                  SizedBox(
+                    width: 9,
                   ),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.person_rounded,
+                  IconButton(
+                    icon: Icon(
+                      Icons.group_rounded,
+                    ),
+                    onPressed: () {},
                   ),
-                  onPressed: () {},
-                ),
-              ],
+                  IconButton(
+                    icon: Icon(
+                      Icons.person_rounded,
+                    ),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        body: SingleChildScrollView(
-          child: Container(
+          body: SingleChildScrollView(
+              child: Container(
             width: screenWidth,
             height: screenHeight,
             color: Color.fromARGB(255, 99, 146, 38),
@@ -80,59 +87,52 @@ class _AccountState extends State<Account> {
               children: [
                 // text to display account name
                 Positioned(
-                  top: screenHeight * 0.1,
-                  left: screenWidth * 0.05,
-                  child: SizedBox(
-                    width: screenWidth,
-                    child: ListTile(
-                      title: Text(
-                        "Account Name",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500
+                    top: screenHeight * 0.1,
+                    left: screenWidth * 0.05,
+                    child: SizedBox(
+                      width: screenWidth,
+                      child: ListTile(
+                        title: Text(
+                          "Account Name",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text(
+                          "Account Email",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal),
+                        ),
+                        // profile picture
+                        leading: CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage("assets/image/Logo.png"),
                         ),
                       ),
-                      subtitle: Text(
-                        "Account Email",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal
-                        ),
-                      ),
-                      // profile picture
-                      leading: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage("assets/image/Logo.png"),
-                      ),
-                    ),
-                  )
-                ),
+                    )),
                 Positioned(
                   // put at the bottom
-                  top: screenHeight * 0.25,  
-                  child: Container(              
+                  top: screenHeight * 0.25,
+                  child: Container(
                     width: screenWidth * 0.98,
                     height: screenHeight * 0.75,
                     margin: EdgeInsets.only(left: 5, right: 5),
                     // border radius
                     decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20),
-                        )
-                      )
-                    ),
+                        ))),
                   ),
                 )
               ],
             ),
-          )
-        )
-      ),
+          ))),
     );
-  } 
+  }
 }

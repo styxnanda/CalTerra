@@ -1,0 +1,32 @@
+[
+    {
+        "name":"Lots of Meat",
+        "desc":"Over 100g of meat a day (e.g. 1 steak of serving of mince)",
+        "picture": "assets/image/Lots-meat-SVG.png"
+    },
+    {
+        "name":"Medium of Meat",
+        "desc":"Meat every other day on average",
+        "picture": "assets/image/medium-meat.png"
+    },
+    {
+        "name":"Low Meat",
+        "desc":"Some meat consumed but no beef",
+        "picture": "assets/image/low-meat.png"
+    },
+    {
+        "name":"Pescatarian",
+        "desc":"A serving of fish or seafood, every other day on average",
+        "picture": "assets/image/pescatarian.png"
+    },
+    {
+        "name":"Vegetarian",
+        "desc":"No meat, but eggs or dairy products consumed",
+        "picture": "assets/image/vegetarian.png"
+    },
+    {
+        "name":"Vegan",
+        "desc":"No meat, dairy, eggs, or other animal products consumed",
+        "picture": "assets/image/vegan.png"
+    }
+]

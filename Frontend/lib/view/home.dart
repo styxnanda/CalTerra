@@ -18,18 +18,19 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.tealAccent,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: SizedBox(
-          height: AppBar().preferredSize.height,
-          width: AppBar().preferredSize.height,
+          height: 100,
+          width: 50,
           child: FittedBox(
             child: FloatingActionButton(
               onPressed: () {                
                 Navigator.of(context).pushNamed(
-                  "vehicleEmission",
+                  "foodEmission",
                 );
               },
               child: Icon(
                 Icons.add,
               ),
+              elevation: 6.0,
             ),
           ),
         ),
