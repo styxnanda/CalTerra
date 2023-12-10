@@ -22,7 +22,9 @@ class _FoodEmissionState extends State<FoodEmission> {
     await DefaultAssetBundle.of(context)
         .loadString("assets/json/foodEMChoices.json")
         .then((value) {
-      choices = json.decode(value);
+          setState(() {
+            choices = json.decode(value);
+          });
     });
   }
 
