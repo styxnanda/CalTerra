@@ -1,3 +1,4 @@
+import 'package:calterra/view/foodEmission.dart';
 import 'package:calterra/view/login.dart';
 import 'package:calterra/view/register.dart';
 import 'package:calterra/view/home.dart';
@@ -42,6 +43,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case "vehicleEmission":
       return PageTransition(
         child: const VehicleEmission(),
+        type: PageTransitionType.topToBottom,
+        settings: settings,
+      );
+    case "foodEmission":
+      return PageTransition(
+        child: const FoodEmission(),
         type: PageTransitionType.topToBottom,
         settings: settings,
       );

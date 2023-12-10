@@ -41,6 +41,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   dropdown_search: ^5.0.6
   http: ^1.1.0
+  get:
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +68,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/image/
+    - assets/json/
 
 
 
