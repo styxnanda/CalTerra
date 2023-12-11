@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,74 +10,60 @@ import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
   const Login({super.key});
-  
-  
+
   @override
   State<Login> createState() => _LoginState();
 }
 
-Future<http.Response> login (BuildContext context, username, String password) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:4322/account/login/local'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
+Future<void> login(BuildContext context, String username, String password) async {
+  final ApiService apiService = ApiService();
+  final response = await apiService.postRequest(
+    'account/login/local',
+    {
+      'username': username,
+      'password': password,
     },
-    body: jsonEncode(
-      <String, String>{
-        'username': username,
-        'password': password,
-      },
-    ),
+    urlEncoded: true,
   );
 
+  debugPrint("Body: ${response.body}");
+  debugPrint("Code: ${response.statusCode}");
+
   if (response.statusCode == 200) {
-    showDialog(
-      context: context, 
-      builder: (BuildContext context) => AlertDialog(
-        title: Text("Login Success"),
-        content: Text("You have successfully logged in"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // navigate to home
-              Navigator.of(context).pushNamed(
-                "home",
-              );
-            }, 
-            child: Text("OK")
-          )
-        ],
-      )
-    );
+    // Successful login logic
+    _showDialog(context, "Login Success", "You have successfully logged in", () {
+      Navigator.of(context).pushNamed("home");
+    });
     String? cookie = response.headers['set-cookie'];
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString('cookie', cookie!);
-    return response;
+    if (cookie != null) {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      preferences.setString('cookie', cookie);
+    }
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    showDialog(
-      context: context, 
-      builder: (BuildContext context) => AlertDialog(
-        title: Text("Login Failed"),
-        content: Text("You have failed to log in"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            }, 
-            child: Text("OK")
-          )
-        ],
-      )
-      );
-    throw Exception(response.body);
+    // Failed login logic
+    _showDialog(context, "Login Failed", "Failed to log in", () {
+      Navigator.of(context).pop();
+    });
   }
 }
 
+void _showDialog(BuildContext context, String title, String content, VoidCallback onPressed) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(onPressed: onPressed, child: Text("OK"))
+      ],
+    )
+  );
+}
+
+
 class _LoginState extends State<Login> {
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();  
+  final TextEditingController _passwordController = TextEditingController();
 
   String username = "";
   String password = "";
