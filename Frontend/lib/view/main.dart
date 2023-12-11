@@ -2,6 +2,7 @@ import 'package:calterra/routing.dart';
 import 'package:calterra/view/account.dart';
 import 'package:calterra/view/foodEmission.dart';
 import 'package:calterra/view/home.dart';
+import 'package:calterra/view/homeEmission.dart';
 import 'package:calterra/view/login.dart';
 import 'package:flutter/material.dart';
 import 'package:calterra/view/startup.dart';
@@ -22,13 +23,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'CalTerra Application',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       onGenerateRoute: generateRoute,
-      home: FoodEmission(),
+      home: Startup(),
     );
   }
 }
