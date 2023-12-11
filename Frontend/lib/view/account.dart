@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stacked/stacked.dart';
 import 'package:calterra/viewModel/view_account.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http; 
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
 
   @override
   State<Account> createState() => _AccountState();
+}
+
+Future logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.remove('cookie');
 }
 
 class _AccountState extends State<Account> {
@@ -86,6 +93,39 @@ class _AccountState extends State<Account> {
             color: Color.fromARGB(255, 99, 146, 38),
             child: Stack(
               children: [
+                Positioned(
+                      left: screenWidth * 0.02,
+                      top: screenHeight * 0.05,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            // onPressed Navigate to home.dart
+                            onPressed: () {
+                              logout();
+                              // clear cookie, go to startup page
+                              Navigator.of(context).pushNamed(
+                                "startup",
+                              );
+
+                            },
+                            icon: Icon(Icons.arrow_back_ios),
+                            color: Colors.white,
+                            iconSize: 16,
+                          ),
+                          Text(
+                            'Logout',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              height: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 // text to display account name
                 Positioned(
                     top: screenHeight * 0.1,
