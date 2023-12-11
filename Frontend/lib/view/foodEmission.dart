@@ -22,9 +22,9 @@ class _FoodEmissionState extends State<FoodEmission> {
     await DefaultAssetBundle.of(context)
         .loadString("assets/json/foodEMChoices.json")
         .then((value) {
-          setState(() {
-            choices = json.decode(value);
-          });
+      setState(() {
+        choices = json.decode(value);
+      });
     });
   }
 
@@ -225,13 +225,12 @@ class _FoodEmissionState extends State<FoodEmission> {
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
                             onPressed: () {},
-                            child: Text("Cancel", style: 
-                              TextStyle(
-                                color: Color.fromRGBO(99, 146, 38, 1),
-                                fontFamily: "Poppins",
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold
-                              )),
+                            child: Text("Cancel",
+                                style: TextStyle(
+                                    color: Color.fromRGBO(99, 146, 38, 1),
+                                    fontFamily: "Poppins",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 side: BorderSide(
@@ -243,13 +242,12 @@ class _FoodEmissionState extends State<FoodEmission> {
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
                             onPressed: () {},
-                            child: Text("Save", style: 
-                              TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold
-                              )),
+                            child: Text("Save",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "Poppins",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: selectedItem > -1
                                     ? Color.fromRGBO(99, 146, 38, 1)
