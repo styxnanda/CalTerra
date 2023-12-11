@@ -193,10 +193,10 @@ router.post("/flight", sessionChecker, async (req, res) => {
         let distance = 0;
         if (from != null && to != null) {
             let filter_data = airport_list.filter((data) => data.iata == from);
-            let from_lat = filter_data[0].latitude;
+            let from_lat = filter_data[0].lattitude;
             let from_lon = filter_data[0].longitude;
             filter_data = airport_list.filter((data) => data.iata == to);
-            let to_lat = filter_data[0].latitude;
+            let to_lat = filter_data[0].lattitude;
             let to_lon = filter_data[0].longitude;
             distance = distanceCalc(from_lat, from_lon, to_lat, to_lon); 
         } else {
