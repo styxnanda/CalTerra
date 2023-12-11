@@ -1,6 +1,7 @@
 import 'package:calterra/routing.dart';
 import 'package:calterra/view/account.dart';
 import 'package:calterra/view/foodEmission.dart';
+import 'package:calterra/view/history.dart';
 import 'package:calterra/view/home.dart';
 import 'package:calterra/view/homeEmission.dart';
 import 'package:calterra/view/login.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       onGenerateRoute: generateRoute,
-      home: Startup(),
+      home: History(),
     );
   }
 }

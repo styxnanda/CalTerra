@@ -1,4 +1,5 @@
 import 'package:calterra/view/foodEmission.dart';
+import 'package:calterra/view/history.dart';
 import 'package:calterra/view/homeEmission.dart';
 import 'package:calterra/view/login.dart';
 import 'package:calterra/view/register.dart';
@@ -66,6 +67,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         child: const HomeEmission(),
         type: PageTransitionType.topToBottom,
         settings: settings, 
+      );
+    case "history":
+      return PageTransition(
+        child: const History(),
+        type: PageTransitionType.topToBottom,
+        settings: settings,
       );
     default:
       return PageTransition(

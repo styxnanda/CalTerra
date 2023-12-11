@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
+import 'package:http/http.dart' as http;
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -9,7 +14,54 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
+Future<void> register(BuildContext context, String email, String username, String name, String password) async {
+  final ApiService apiService = ApiService();
+  final response = await apiService.postRequest(
+    "account/register", 
+    {
+      'email': email,
+      'username': username,
+      'name': name,
+      'password': password,
+    }, 
+    urlEncoded: true
+  );
+
+  if(response.statusCode == 200){
+    _showDialog(context, "Register Success", "You have successfully registered", () {
+      Navigator.of(context).pushNamed("login");
+    });
+  } else {
+    _showDialog(context, "Register Failed", "Failed to register", () {
+      Navigator.of(context).pop();
+    });
+  }
+}
+
+void _showDialog(BuildContext context, String title, String content, VoidCallback onPressed) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(onPressed: onPressed, child: Text("OK"))
+      ],
+    )
+  );
+}
+
 class _RegisterState extends State<Register> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String email = "";
+  String username = "";
+  String name = "";
+  String password = "";
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder.reactive(
@@ -54,18 +106,28 @@ class _RegisterState extends State<Register> {
                       Container(
                         margin: EdgeInsets.only(bottom: 5),
                         child: TextFormField(
+                          controller: _emailController,
                           decoration: InputDecoration(hintText: "Email"),
                         ),
                       ),
                       Container(
                         margin: EdgeInsets.only(bottom: 5),
                         child: TextFormField(
+                          controller: _usernameController,
                           decoration: InputDecoration(hintText: "Username"),
                         ),
                       ),
                       Container(
                         margin: EdgeInsets.only(bottom: 5),
                         child: TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(hintText: "Name"),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 5),
+                        child: TextFormField(
+                          controller: _passwordController,
                           decoration: InputDecoration(hintText: "Password"),
                         ),
                       ),
@@ -73,7 +135,13 @@ class _RegisterState extends State<Register> {
                         margin: EdgeInsets.only(top: 25),
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            email = _emailController.text;
+                            username = _usernameController.text;
+                            name = _nameController.text;
+                            password = _passwordController.text;
+                            register(context, email, username, name, password);
+                          },
                           child: Text(
                             "Register",
                             style: TextStyle(color: Colors.white),
