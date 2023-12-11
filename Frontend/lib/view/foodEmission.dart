@@ -16,7 +16,8 @@ class FoodEmission extends StatefulWidget {
   State<FoodEmission> createState() => _FoodEmissionState();
 }
 
-Future<http.Response> createFoodEmission(BuildContext context, String food_type) async {
+Future<http.Response> createFoodEmission(
+    BuildContext context, String food_type) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   String? cookie = preferences.getString('cookie');
   final response = await http.post(
@@ -25,13 +26,11 @@ Future<http.Response> createFoodEmission(BuildContext context, String food_type)
       'Content-Type': 'application/json; charset=UTF-8',
       'Cookie': cookie!,
     },
-    body: jsonEncode(
-      <String, String> {
-        'food_type': food_type,
-      }
-    ),
+    body: jsonEncode(<String, String>{
+      'food_type': food_type,
+    }),
   );
-    if (response.statusCode == 200) {
+  if (response.statusCode == 200) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -71,6 +70,7 @@ Future<http.Response> createFoodEmission(BuildContext context, String food_type)
     throw Exception(response.body);
   }
 }
+
 class _FoodEmissionState extends State<FoodEmission> {
   List choices = [];
   int selectedItem = -1;
@@ -168,10 +168,9 @@ class _FoodEmissionState extends State<FoodEmission> {
                               child: ListView.builder(
                                   itemCount: choices.length,
                                   itemBuilder: (_, int index) {
-                                    return GestureDetector(                                      
+                                    return GestureDetector(
                                       onTap: () {
                                         debugPrint(index.toString());
-                                        
                                       },
                                       child: Container(
                                         padding: EdgeInsets.only(
@@ -195,10 +194,12 @@ class _FoodEmissionState extends State<FoodEmission> {
                                                         } else {
                                                           selectedItem = index;
                                                         }
-                                                                                                setState(() {
-                                                  foodEmission = choices[index]["name"];
-                                                  print(foodEmission);
-                                        });
+                                                        setState(() {
+                                                          foodEmission =
+                                                              choices[index]
+                                                                  ["name"];
+                                                          print(foodEmission);
+                                                        });
                                                       });
                                                     },
                                                     child: Row(

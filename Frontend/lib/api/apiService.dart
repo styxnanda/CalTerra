@@ -3,7 +3,7 @@ import "package:http/http.dart" as http;
 import "dart:convert";
 
 class ApiService{
-  final String baseURL = "https://calterra-1tp1ufb6j-satya-ananda-sulistios-projects.vercel.app";
+  final String baseURL = "https://calterra-api.vercel.app";
 
   Future<http.Response> getData(String endpoint) async {
     final url = Uri.parse('$baseURL/$endpoint');
@@ -20,9 +20,9 @@ class ApiService{
         : jsonEncode(data);
 
     // Print the request URL, headers, and body for debugging
-    print('Request URL: $url');
-    print('Request Headers: $headers');
-    print('Request Body: $body');
+    // debugPrint('Request URL: $url');
+    // debugPrint('Request Headers: $headers');
+    // debugPrint('Request Body: $body');
 
     return await http.post(url, headers: headers, body: body);
   }
