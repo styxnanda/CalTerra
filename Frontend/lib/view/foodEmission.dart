@@ -112,7 +112,7 @@ class _FoodEmissionState extends State<FoodEmission> {
                             size: 20, color: Colors.white),
                         InkWell(
                             onTap: () {
-                              Get.back();
+                              Navigator.pop(context);
                             },
                             child: Text(
                               "Back",
@@ -168,12 +168,8 @@ class _FoodEmissionState extends State<FoodEmission> {
                               child: ListView.builder(
                                   itemCount: choices.length,
                                   itemBuilder: (_, int index) {
-                                    return GestureDetector(
-                                      
+                                    return GestureDetector(                                      
                                       onTap: () {
-                                        setState(() {
-                                          foodEmission = choices[index]["name"];
-                                        });
                                         debugPrint(index.toString());
                                         
                                       },
@@ -199,6 +195,10 @@ class _FoodEmissionState extends State<FoodEmission> {
                                                         } else {
                                                           selectedItem = index;
                                                         }
+                                                                                                setState(() {
+                                                  foodEmission = choices[index]["name"];
+                                                  print(foodEmission);
+                                        });
                                                       });
                                                     },
                                                     child: Row(
@@ -305,6 +305,7 @@ class _FoodEmissionState extends State<FoodEmission> {
                         child: ElevatedButton(
                             onPressed: () {
                               createFoodEmission(context, foodEmission);
+                              print(foodEmission);
                             },
                             child: Text("Save",
                                 style: TextStyle(
