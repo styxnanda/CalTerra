@@ -10,8 +10,225 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  
+
+
   @override
   Widget build(BuildContext context) {
+
+    
+
+        double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    void selectEmissionsBottomDialog(BuildContext context){
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SizedBox(
+            height: screenHeight * 0.35, // You can adjust this as needed
+            child: Column(
+              children: [
+                // add two text button at the top left and right corner
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 20, left: 10),
+                      child: TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          'Select Emissions Type', 
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: screenHeight * 0.015 + 10,
+                ),
+                SizedBox(
+                  height: screenHeight * 0.15,
+                  child: Center(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.only(left: 10, right: 10),
+		                  children: [
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                // emissionList.add('Car');
+                              
+                              });
+                              // Navigator.pop(context);
+                                              Navigator.of(context).pushNamed(
+                                  "flightEmission",
+                                );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[  
+                                
+                                // Image.asset('assets/image/front-car.png', height: 50, width: 50),
+                                SizedBox(height: 5),                                                     
+                                Text(
+                                  'Flight Emission',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  ),                                      
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color(0xFFFF4208),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Rectangle shape
+                              ),
+                              maximumSize: Size(300, screenHeight * 0.1),
+                              fixedSize: Size(screenWidth * 0.3, screenHeight * 0.08),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                // emissionList.add('Bus');
+                              });
+                              // Navigator.pop(context);
+                                              Navigator.of(context).pushNamed(
+                                  "vehicleEmission",
+                                );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[  
+                                // Image.asset('assets/image/front-bus.png', height: 50, width: 50),
+                                SizedBox(height: 5),                                                  
+                                Text(
+                                  'Vehicle Emission',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  ),                                      
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color(0xFF023047),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Rectangle shape
+                              ),
+                              maximumSize: Size(300, screenHeight * 0.1),
+                              fixedSize: Size(screenWidth * 0.3, screenHeight * 0.08),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                // emissionList.add('Train');
+                                Navigator.of(context).pushNamed(
+                                  "homeEmission",
+                                );
+                              });
+                                              Navigator.of(context).pushNamed(
+                                  "homeEmission",
+                                );
+                              // Navigator.pop(context);
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[  
+                                // Image.asset('assets/image/front-train.png', height: 50, width: 50),
+                                SizedBox(height: 5),                                                    
+                                Text(
+                                  'house Emissions',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  ),
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color(0xFF6CA2EA),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Rectangle shape
+                              ),
+                              maximumSize: Size(300, screenHeight * 0.1),
+                              fixedSize: Size(screenWidth * 0.3, screenHeight * 0.08),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                // emissionList.add('Motorbike');
+                                    // Navigator.of(context).pushNamed(
+                                //   "homeEmission",
+                                // );
+                              });
+                              // Navigator.pop(context);
+                                              Navigator.of(context).pushNamed(
+                                  "foodEmission",
+                                );
+                              
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[  
+                                // Image.asset('assets/image/front-motor.png', height: 50, width: 50),
+                                SizedBox(height: 5),                                                 
+                                Text(
+                                  'Food Emission',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  ),
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color(0xFFFED23F),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Rectangle shape
+                              ),
+                              maximumSize: Size(300, screenHeight * 0.1),
+                              fixedSize: Size(screenWidth * 0.3, screenHeight * 0.08),
+                            ),
+                          ),
+                        ),
+                        
+                      ],
+                    )
+                  ),
+                ),
+              ],
+            )
+          );
+        },
+      );
+    }
+
     return ViewModelBuilder.reactive(
       viewModelBuilder: () => ViewHome(),
       builder: (context, model, child) => Scaffold(
@@ -23,9 +240,7 @@ class _HomeState extends State<Home> {
           child: FittedBox(
             child: FloatingActionButton(
               onPressed: () {                
-                Navigator.of(context).pushNamed(
-                  "flightEmission",
-                );
+                selectEmissionsBottomDialog(context);
               },
               child: Icon(
                 Icons.add,

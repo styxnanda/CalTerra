@@ -5,7 +5,6 @@ const { Client } = require("pg");
 
 // connect to database using pg
 const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;
-const URL = `postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}/${PGDATABASE}?options=project%3D${ENDPOINT_ID}`;
 const passwordDB = process.env.PGPASSWORD || null;
 
 // const db = new Client({
@@ -17,13 +16,17 @@ const passwordDB = process.env.PGPASSWORD || null;
 //   connectionTimeoutMillis: 0,
 // });
 
-//connect db from localhost
 const db = new Client({
-  host:"localhost",
-  user:"postgres",
-  ...(passwordDB && { password: passwordDB}),
-  database:"calterra",
-  port:5432,
+  user: PGUSER,
+  host: PGHOST,
+  database: PGDATABASE,
+  password: passwordDB,
+  port: 5432,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  idleTimeoutMillis: 0,
+  connectionTimeoutMillis: 0,
 });
 
 db.connect((err) => {
