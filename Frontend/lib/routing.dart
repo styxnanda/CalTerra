@@ -5,11 +5,19 @@ import 'package:calterra/view/home.dart';
 import 'package:calterra/view/account.dart';
 import 'package:calterra/view/flightEmission.dart';
 import 'package:calterra/view/vehicleEmission.dart';
+import 'package:calterra/view/startup.dart';  
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
+
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
+    case "startup":
+      return PageTransition(
+        child: const Startup(),
+        type: PageTransitionType.topToBottom,
+        settings: settings,
+      );
     case "login":
       return PageTransition(
         child: const Login(),

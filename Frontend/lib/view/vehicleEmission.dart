@@ -5,23 +5,157 @@ import 'package:calterra/viewModel/view_vehicle_emission.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+
+
+Future logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.remove('cookie');
+}
 
 class VehicleEmission extends StatefulWidget {
   const VehicleEmission({Key? key}) : super(key: key);
 
   @override
   State<VehicleEmission> createState() => _VehicleEmissionState();
+
+  
 }
 
 
 class _VehicleEmissionState extends State<VehicleEmission> {
+  // List<Widget> vehicleWidgetList = [];
+  final List<String> vehicleList = [];
+  final List<TextEditingController> distanceList = [];
+  
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    Widget vehicleWidget(String vehicle) {
+      String imageUrl = '';
+      int colorValue = 0;
+
+      switch (vehicle) {
+        case 'Car':
+          imageUrl = 'assets/image/front-car.png';
+          colorValue = 0xFFFF4208;
+          break;
+        case 'Bus':
+          imageUrl = 'assets/image/front-bus.png';
+          colorValue = 0xFF023047;
+          break;
+        case 'Train':
+          imageUrl = 'assets/image/front-train.png';
+          colorValue = 0xFF6CA2EA;
+          break;
+        case 'Motorbike':
+          imageUrl = 'assets/image/front-motor.png';
+          colorValue = 0xFFFED23F;
+          break;
+        case 'Electric Bicycle':
+          imageUrl = 'assets/image/electric-cycle.png';
+          colorValue = 0xFF7DBD2B; 
+          break;
+        default:
+          imageUrl = 'assets/image/front-car.png';
+          colorValue = 0xFFFF4208;
+      }
+
+      // TODO: build widget for each vehicle
+      return Container(
+        alignment: Alignment.centerLeft,
+        margin: EdgeInsets.only(bottom: 15),          
+        height: screenHeight * 0.1 + 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
+              offset: Offset(0, 3),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: ListTile(
+          leading: Container(
+            padding: EdgeInsets.all(10),
+            height: 60,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Color(colorValue),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
+                  offset: Offset(0, 3),
+                  blurRadius: 6,
+                ),
+              ],            
+            ),
+            child: Image.asset(imageUrl, height: 20, width: 20),
+          ),
+          title: Text(vehicle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          subtitle: Column(
+            children: [
+              Text("How far do you travel with this transportation?"),
+              TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: 'Distance (km)',
+                    hintStyle: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      height: 0,
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      height: 0,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Color.fromARGB(255, 99, 146, 38),
+                        width: 1,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          
+          trailing: IconButton(
+            onPressed: () {
+              setState(() {
+                vehicleList.remove(vehicle);
+              });
+            },
+            icon: Icon(Icons.delete),
+          ),
+        ),     
+      );
+    }
+
     // List<bool> isSelected = [true, false, false, false, false];
-    List<String> vehicleList = [];
 
     void selectVehicleBottomDialog(BuildContext context){
       showModalBottomSheet(
@@ -48,7 +182,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           ),
                         ),
                       ),
-                    ),                    
+                    ),
                   ],
                 ),
                 SizedBox(
@@ -64,16 +198,16 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         Padding(
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //exit form dialog
-                              setState(() {
-                                vehicleList.add('Car');                              
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                vehicleList.add('Car');
                               });
                               Navigator.pop(context);
                             },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[  
+                                
                                 Image.asset('assets/image/front-car.png', height: 50, width: 50),
                                 SizedBox(height: 5),                                                     
                                 Text(
@@ -99,8 +233,10 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         Padding(
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //exit form dialog
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                vehicleList.add('Bus');
+                              });
                               Navigator.pop(context);
                             },
                             child: Column(
@@ -131,8 +267,10 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         Padding(
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //exit form dialog
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                vehicleList.add('Train');
+                              });
                               Navigator.pop(context);
                             },
                             child: Column(
@@ -146,7 +284,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  ),                                      
+                                  ),
                               ],
                             ),
                             style: ElevatedButton.styleFrom(
@@ -163,8 +301,10 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         Padding(
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //exit form dialog
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                vehicleList.add('Motorbike');
+                              });
                               Navigator.pop(context);
                             },
                             child: Column(
@@ -195,8 +335,10 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         Padding(
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //exit form dialog
+                            onPressed: () {                                                                                                               
+                              setState(() {    
+                                vehicleList.add('Electric Bicycle');
+                              });
                               Navigator.pop(context);
                             },
                             child: Column(
@@ -325,6 +467,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                   IconButton(
                     // onPressed Navigate to home.dart
                     onPressed: () {
+                      // back
                       Navigator.pop(context);
                     },
                     icon: Icon(Icons.arrow_back_ios),
@@ -390,7 +533,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         'Please select your transport do you use most frequently.',
                         style: TextStyle(                        
                           fontSize: 16,
-                          fontFamily: 'Poppins',                          
+                          fontFamily: 'Poppins',
                           height: 0,
                         ),
                       ),
@@ -433,6 +576,20 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           ),
                         ),
                       )
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: SizedBox(
+                        height: screenHeight * 0.6,
+                        child: ListView.builder(
+                          itemCount: vehicleList.length,
+                          itemBuilder: (context, index) {
+                            var vehicle = vehicleList[index];
+                            print(vehicle);
+                            return vehicleWidget(vehicle);
+                          },
+                        ),
+                      ),
                     )
                   ],
                 ),
