@@ -29,6 +29,9 @@ class _VehicleEmissionState extends State<VehicleEmission> {
   // List<Widget> vehicleWidgetList = [];
   final List<String> vehicleList = [];
   final List<TextEditingController> distanceList = [];
+
+  String? fuel_type;
+  String? vehicle_size;
   
   @override
   Widget build(BuildContext context) {
@@ -38,6 +41,8 @@ class _VehicleEmissionState extends State<VehicleEmission> {
     Widget vehicleWidget(String vehicle) {
       String imageUrl = '';
       int colorValue = 0;
+
+      distanceList.add(TextEditingController());
 
       switch (vehicle) {
         case 'Car':
@@ -66,13 +71,13 @@ class _VehicleEmissionState extends State<VehicleEmission> {
       }
 
       // TODO: build widget for each vehicle
-      return Container(
-        alignment: Alignment.centerLeft,
-        margin: EdgeInsets.only(bottom: 15),          
-        height: screenHeight * 0.1 + 50,
+      return Container(    
+        margin: EdgeInsets.only(bottom: 15),   
+        padding: EdgeInsets.all(10), 
+        //box shadow
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
               color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
@@ -81,77 +86,245 @@ class _VehicleEmissionState extends State<VehicleEmission> {
             ),
           ],
         ),
-        child: ListTile(
-          leading: Container(
-            padding: EdgeInsets.all(10),
-            height: 60,
-            width: 60,
-            decoration: BoxDecoration(
-              color: Color(colorValue),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
-                  offset: Offset(0, 3),
-                  blurRadius: 6,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(right: 10),
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: Color(colorValue),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
+                            offset: Offset(0, 3),
+                            blurRadius: 6,
+                          ),
+                        ],            
+                      ),
+                      child: Image.asset(imageUrl, height: 20, width: 20),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(vehicle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text(
+                          "How far do you travel with this transportation?", 
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-              ],            
-            ),
-            child: Image.asset(imageUrl, height: 20, width: 20),
-          ),
-          title: Text(vehicle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          subtitle: Column(
-            children: [
-              Text("How far do you travel with this transportation?"),
-              TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Distance (km)',
-                    hintStyle: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      height: 0,
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      height: 0,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1,
+                Container(    
+                  margin: EdgeInsets.only(top: 10),              
+                  height: 32, // You can adjust this as needed
+                  width: screenWidth * 0.7,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    // print TextEditingController.text,
+                    onChanged: (value) {
+                      print(distanceList[vehicleList.indexOf(vehicle)].text);
+                    },
+                    controller: distanceList[vehicleList.indexOf(vehicle)],
+                    decoration: InputDecoration(                     
+                      hintText: 'Distance (km)',
+                      hintStyle: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        height: 0,
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: Color.fromARGB(255, 99, 146, 38),
-                        width: 1,
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        height: 0,
                       ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 0,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 99, 146, 38),
+                          width: 1,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                     ),
                   ),
                 ),
+                // if vehicle is "Car", add more text field 
+                if (vehicle == 'Car')
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 10, bottom: 10, left: 5),
+                        child: Text("Details", style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10, left: 5),              
+                        height: 32, // You can adjust this as needed
+                        width: screenWidth * 0.7,                      
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Text('Fuel Type:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
+                          title: DropdownButtonFormField(
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.normal,
+                            height: 0,
+                          ),
+                          hint: Text('Fuel Type...'),
+                          onChanged: (value) {
+                            setState(() {
+                              fuel_type = value.toString();  
+                              print(fuel_type);                          
+                            });
+                          },
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 99, 146, 38),
+                                width: 1,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 0,
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              child: Text('Petrol'),
+                              value: 'Petrol',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Diesel'),
+                              value: 'Diesel',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Hybrid'),
+                              value: 'Hybrid',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Battery Electric Vehicle'),
+                              value: 'Battery Electric Vehicle',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Plug-in Hybrid Electric Vehicle'),
+                              value: 'Plug-in Hybrid Electric Vehicle',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Unknown'),
+                              value: 'Unknown',
+                            ),
+                          ],
+                        ),
+                        ),                        
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10, left: 5),              
+                        height: 32, // You can adjust this as needed
+                        width: screenWidth * 0.7,                      
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Text('Car Size:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
+                          title: DropdownButtonFormField(
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.normal,
+                            height: 0,
+                          ),
+                          hint: Text('Car Size...'),
+                          onChanged: (value) {
+                            setState(() {
+                              vehicle_size = value.toString();  
+                              print(vehicle_size);                          
+                            });
+                          },
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 99, 146, 38),
+                                width: 1,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 0,
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              child: Text('Small'),
+                              value: 'Small',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Medium'),
+                              value: 'Medium',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Large'),
+                              value: 'Large',
+                            ),
+                          ],
+                        ),
+                        ),
+                      ),
+                    ],
+                    )
               ],
             ),
-          
-          trailing: IconButton(
-            onPressed: () {
-              setState(() {
-                vehicleList.remove(vehicle);
-              });
-            },
-            icon: Icon(Icons.delete),
-          ),
-        ),     
+                       
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  vehicleList.remove(vehicle);
+                });
+              },
+              icon: Icon(Icons.delete),
+            )
+          ],
+        ),
       );
     }
 
@@ -580,7 +753,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: SizedBox(
-                        height: screenHeight * 0.6,
+                        height: screenHeight * 0.5,
                         child: ListView.builder(
                           itemCount: vehicleList.length,
                           itemBuilder: (context, index) {

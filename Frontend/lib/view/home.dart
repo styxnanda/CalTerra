@@ -11,15 +11,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  
-
-
   @override
   Widget build(BuildContext context) {
 
-    
-
-        double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     void selectEmissionsBottomDialog(BuildContext context){
@@ -65,11 +60,10 @@ class _HomeState extends State<Home> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                // emissionList.add('Car');
-                              
+                                // emissionList.add('Car');                              
                               });
                               // Navigator.pop(context);
-                                              Navigator.of(context).pushNamed(
+                                Navigator.of(context).pushNamed(
                                   "flightEmission",
                                 );
                             },
@@ -77,10 +71,11 @@ class _HomeState extends State<Home> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[  
                                 
-                                // Image.asset('assets/image/front-car.png', height: 50, width: 50),
+                                Image.asset('assets/image/plane.png', height: 50, width: 50),
                                 SizedBox(height: 5),                                                     
                                 Text(
                                   'Flight Emission',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -90,7 +85,7 @@ class _HomeState extends State<Home> {
                             ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Color(0xFFFF4208),
+                              backgroundColor: Color(0xFF92A0A9),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20), // Rectangle shape
                               ),
@@ -107,17 +102,18 @@ class _HomeState extends State<Home> {
                                 // emissionList.add('Bus');
                               });
                               // Navigator.pop(context);
-                                              Navigator.of(context).pushNamed(
+                                Navigator.of(context).pushNamed(
                                   "vehicleEmission",
                                 );
                             },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[  
-                                // Image.asset('assets/image/front-bus.png', height: 50, width: 50),
+                                Image.asset('assets/image/front-car.png', height: 50, width: 50),
                                 SizedBox(height: 5),                                                  
                                 Text(
                                   'Vehicle Emission',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -127,7 +123,7 @@ class _HomeState extends State<Home> {
                             ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Color(0xFF023047),
+                              backgroundColor: Color(0xFFAC3131),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20), // Rectangle shape
                               ),
@@ -146,7 +142,7 @@ class _HomeState extends State<Home> {
                                   "homeEmission",
                                 );
                               });
-                                              Navigator.of(context).pushNamed(
+                                  Navigator.of(context).pushNamed(
                                   "homeEmission",
                                 );
                               // Navigator.pop(context);
@@ -154,10 +150,11 @@ class _HomeState extends State<Home> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[  
-                                // Image.asset('assets/image/front-train.png', height: 50, width: 50),
+                                Image.asset('assets/image/House.png', height: 50, width: 50),
                                 SizedBox(height: 5),                                                    
                                 Text(
-                                  'house Emissions',
+                                  'House Emissions',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -167,7 +164,7 @@ class _HomeState extends State<Home> {
                             ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Color(0xFF6CA2EA),
+                              backgroundColor: Color(0xFF217CB2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20), // Rectangle shape
                               ),
@@ -187,7 +184,7 @@ class _HomeState extends State<Home> {
                                 // );
                               });
                               // Navigator.pop(context);
-                                              Navigator.of(context).pushNamed(
+                                Navigator.of(context).pushNamed(
                                   "foodEmission",
                                 );
                               
@@ -195,20 +192,22 @@ class _HomeState extends State<Home> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[  
-                                // Image.asset('assets/image/front-motor.png', height: 50, width: 50),
+                                Image.asset('assets/image/cutlery.png', height: 50, width: 50),
                                 SizedBox(height: 5),                                                 
                                 Text(
                                   'Food Emission',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
+                                    
                                   ),
                                   ),
                               ],
                             ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Color(0xFFFED23F),
+                              backgroundColor: Color(0xFFC5B319),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20), // Rectangle shape
                               ),

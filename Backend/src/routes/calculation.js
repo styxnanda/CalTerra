@@ -6,49 +6,82 @@ const sessionChecker  = require("./account.js")
 
 // const baseURI = "/calculation";
 
-const vehicle_emission_factor = [];
-const airport_list = [];
-const food_emission_factor = [];
-const home_appliances_emission_factor = [];
+var vehicle_emission_factor = [];
+var airport_list = [];
+var food_emission_factor = [];
+var home_appliances_emission_factor = [];
 
-try {
-    // read vehicle emission factor
-    const workbook = xlsx.readFile("./assets/vehicle_emission_factor.xlsx"); 
-    const sheet_name_list = workbook.SheetNames;
-    const xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-    xlData.forEach((data) => {
-        vehicle_emission_factor.push(data);
-    });
 
-    // read airport list
-    const airport_list_workbook = xlsx.readFile("./assets/iata-airport.xlsx");
-    const airport_list_sheet_name_list = airport_list_workbook.SheetNames;
-    const airport_list_xlData = xlsx.utils.sheet_to_json(airport_list_workbook.Sheets[airport_list_sheet_name_list[0]]);
-    airport_list_xlData.forEach((data) => {
-        airport_list.push(data);
-    });
+// try {
+//     // read vehicle emission factor
+//     const workbook = xlsx.readFile("./assets/vehicle_emission_factor.xlsx"); 
+//     const sheet_name_list = workbook.SheetNames;
+//     const xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+//     xlData.forEach((data) => {
+//         vehicle_emission_factor.push(data);
+//     });
 
-    // read food emission factor
-    const food_emission_factor_workbook = xlsx.readFile("./assets/food_emission_factor.xlsx");
-    const food_emission_factor_sheet_name_list = food_emission_factor_workbook.SheetNames;
-    const food_emission_factor_xlData = xlsx.utils.sheet_to_json(food_emission_factor_workbook.Sheets[food_emission_factor_sheet_name_list[0]]);
-    food_emission_factor_xlData.forEach((data) => {
-        food_emission_factor.push(data);
-    });
+//     // read airport list
+//     const airport_list_workbook = xlsx.readFile("./assets/iata-airport.xlsx");
+//     const airport_list_sheet_name_list = airport_list_workbook.SheetNames;
+//     const airport_list_xlData = xlsx.utils.sheet_to_json(airport_list_workbook.Sheets[airport_list_sheet_name_list[0]]);
+//     airport_list_xlData.forEach((data) => {
+//         airport_list.push(data);
+//     });
 
-    // read home appliances emission factor
-    const home_appliances_emission_factor_workbook = xlsx.readFile("./assets/home_appliances_emission_factor.xlsx");
-    const home_appliances_emission_factor_sheet_name_list = home_appliances_emission_factor_workbook.SheetNames;
-    const home_appliances_emission_factor_xlData = xlsx.utils.sheet_to_json(home_appliances_emission_factor_workbook.Sheets[home_appliances_emission_factor_sheet_name_list[0]]);
-    home_appliances_emission_factor_xlData.forEach((data) => {
-        home_appliances_emission_factor.push(data);
-    });
+//     // read food emission factor
+//     const food_emission_factor_workbook = xlsx.readFile("./assets/food_emission_factor.xlsx");
+//     const food_emission_factor_sheet_name_list = food_emission_factor_workbook.SheetNames;
+//     const food_emission_factor_xlData = xlsx.utils.sheet_to_json(food_emission_factor_workbook.Sheets[food_emission_factor_sheet_name_list[0]]);
+//     food_emission_factor_xlData.forEach((data) => {
+//         food_emission_factor.push(data);
+//     });
+
+//     // read home appliances emission factor
+//     const home_appliances_emission_factor_workbook = xlsx.readFile("./assets/home_appliances_emission_factor.xlsx");
+//     const home_appliances_emission_factor_sheet_name_list = home_appliances_emission_factor_workbook.SheetNames;
+//     const home_appliances_emission_factor_xlData = xlsx.utils.sheet_to_json(home_appliances_emission_factor_workbook.Sheets[home_appliances_emission_factor_sheet_name_list[0]]);
+//     home_appliances_emission_factor_xlData.forEach((data) => {
+//         home_appliances_emission_factor.push(data);
+//     });
     
 
-} catch (err) {
-    console.error(err.message);
-    // handle the exception here
-}
+// } catch (err) {
+//     console.error(err.message);
+//     // handle the exception here
+// }
+
+pool.query("SELECT * FROM vehicle_emission_factor", (err, res) => {
+    if (err) {
+        console.error(err.message);
+        return;
+    }
+    vehicle_emission_factor = res.rows;
+});
+
+pool.query("SELECT * FROM airport", (err, res) => {
+    if (err) {
+        console.error(err.message);
+        return;
+    }
+    airport_list = res.rows;
+});
+
+pool.query("SELECT * FROM food_emission_factor", (err, res) => {
+    if (err) {
+        console.error(err.message);
+        return;
+    }
+    food_emission_factor = res.rows;
+});
+
+pool.query("SELECT * FROM home_appliances_emission_factor", (err, res) => {
+    if (err) {
+        console.error(err.message);
+        return;
+    }
+    home_appliances_emission_factor = res.rows;
+});
 
 
 // calculate distance with lattitude and longitude between two locations
@@ -66,6 +99,7 @@ const distanceCalc = (lat1, lon1, lat2, lon2) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distance in km
 };
+
 
 // session error
 router.get("/sessionError", (req, res) => {
@@ -98,6 +132,7 @@ router.get("/airport", async (req, res) => {
 router.post("/vehicle", sessionChecker, async (req, res) => {
     // current year and month
     const currentYearMonth = new Date().toISOString().slice(0, 7);
+    // console.log(vehicle_emission_factor);
 
     try {
         let { vehicle_type, distance, fuel_type, vehicle_size } = req.body;

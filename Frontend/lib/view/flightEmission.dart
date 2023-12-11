@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_flight_emission.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,23 +27,17 @@ class Airport {
 
 }
 
-Future<http.Response> createFlightEmission(BuildContext context, from, String to, String tripType, String flightClass) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  String? cookie = preferences.getString('cookie');
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:4322/calculation/flight'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Cookie': cookie!,
+Future<void> createFlightEmission(BuildContext context, from, String to, String tripType, String flightClass) async {
+  // SharedPreferences preferences = await SharedPreferences.getInstance();
+  // String? cookie = preferences.getString('cookie');
+  final ApiService api = ApiService();
+  final response = await api.postRequest('calculation/flight', {
+      'from': from,
+      'to': to,
+      'trip_type': tripType,
+      'flight_class': flightClass,
     },
-    body: jsonEncode(
-      <String, String> {
-        'from': from,
-        'to': to,
-        'trip_type': tripType,
-        'flight_class': flightClass,
-      }
-    ),
+    // urlEncoded: true,
   );
 
   if (response.statusCode == 200) {
@@ -63,7 +58,7 @@ Future<http.Response> createFlightEmission(BuildContext context, from, String to
         );
       },
     );
-    return response;
+    debugPrint("Body: ${response.body}");
   } else {
     showDialog(
       context: context,
@@ -88,7 +83,8 @@ Future<http.Response> createFlightEmission(BuildContext context, from, String to
 
 
 Future<List<Airport>> fetchAirports() async {
-  final response = await http.get(Uri.parse('http://10.0.2.2:4322/calculation/airport'));
+  final ApiService api = ApiService();
+  final response = await api.getData('calculation/airport');
 
   if (response.statusCode == 200) {
     List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -118,7 +114,7 @@ class _FlightEmissionState extends State<FlightEmission>{
   Airport? selectedFromAirport;
   Airport? selectedToAirport;
 
-  String? flight_type = "";
+  String? flight_type = "one-way";
   String? flight_class = "";
 
   @override
