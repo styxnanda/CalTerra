@@ -15,7 +15,13 @@ class HomeEmission extends StatefulWidget {
 }
 
 class _HomeEmissionState extends State<HomeEmission> {
-  int page = -1; // Default selected carousel page, (only 0, 1 possible)
+  int page = 0; // Default selected carousel page, (only 0, 1 possible)
+
+  void changePage(int newPage) {
+    setState(() {
+      page = newPage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +90,54 @@ class _HomeEmissionState extends State<HomeEmission> {
                       ),
                     ],
                   ),
+                  Container(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                  onPressed: () {},
+                                  child: Text("Power Sources",
+                                      style: TextStyle(
+                                          color: Color.fromRGBO(99, 146, 38, 1),
+                                          fontFamily: "Poppins",
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      side: BorderSide(
+                                          color:
+                                              Color.fromRGBO(99, 146, 38, 1)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0))))),
+                          Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                  onPressed: () {},
+                                  child: Text("Home Appliances",
+                                      style: TextStyle(
+                                          color: page == 1
+                                              ? Colors.white
+                                              : Color.fromRGBO(99, 146, 38, 1),
+                                          fontFamily: "Poppins",
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: page == 1
+                                          ? Color.fromRGBO(99, 146, 38, 1)
+                                          : Colors.white,
+                                      foregroundColor: Colors.white,
+                                      side: BorderSide(
+                                          color:
+                                              Color.fromRGBO(99, 146, 38, 1)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0)))))
+                        ],
+                      ))
                 ],
               ),
             ),

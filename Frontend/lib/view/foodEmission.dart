@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stacked/stacked.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class FoodEmission extends StatefulWidget {
   const FoodEmission({Key? key}) : super(key: key);
@@ -14,10 +16,65 @@ class FoodEmission extends StatefulWidget {
   State<FoodEmission> createState() => _FoodEmissionState();
 }
 
+Future<http.Response> createFoodEmission(BuildContext context, String food_type) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  String? cookie = preferences.getString('cookie');
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:4322/calculation/food'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cookie': cookie!,
+    },
+    body: jsonEncode(
+      <String, String> {
+        'food_type': food_type,
+      }
+    ),
+  );
+    if (response.statusCode == 200) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Food emission created successfully.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return response;
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to create food emission.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    throw Exception(response.body);
+  }
+}
 class _FoodEmissionState extends State<FoodEmission> {
   List choices = [];
   int selectedItem = -1;
-
+  String foodEmission = 'Low Meat';
   _initData() async {
     await DefaultAssetBundle.of(context)
         .loadString("assets/json/foodEMChoices.json")
@@ -112,8 +169,13 @@ class _FoodEmissionState extends State<FoodEmission> {
                                   itemCount: choices.length,
                                   itemBuilder: (_, int index) {
                                     return GestureDetector(
+                                      
                                       onTap: () {
+                                        setState(() {
+                                          foodEmission = choices[index]["name"];
+                                        });
                                         debugPrint(index.toString());
+                                        
                                       },
                                       child: Container(
                                         padding: EdgeInsets.only(
@@ -241,7 +303,9 @@ class _FoodEmissionState extends State<FoodEmission> {
                     Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              createFoodEmission(context, foodEmission);
+                            },
                             child: Text("Save",
                                 style: TextStyle(
                                     color: Colors.white,

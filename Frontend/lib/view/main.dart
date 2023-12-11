@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       onGenerateRoute: generateRoute,
-      home: HomeEmission(),
+      home: Startup(),
     );
   }
 }

@@ -1,0 +1,17 @@
+[
+    {
+        "type": "Electricity",
+        "desc": "Usage in the last month.",
+        "icon": "assets/image/electricity.png"
+    },
+    {
+        "type": "Natural Gas",
+        "desc": "Gas delivered through the mains supply network. Usage in the last month.",
+        "icon": "assets/image/gas.png"
+    },
+    {
+        "type": "Water",
+        "desc": "Water delivered through the mains supply network. Usage in the last month.",
+        "icon": "assets/image/water.png"
+    }
+]
