@@ -6,6 +6,7 @@ import 'package:calterra/view/register.dart';
 import 'package:calterra/view/home.dart';
 import 'package:calterra/view/account.dart';
 import 'package:calterra/view/flightEmission.dart';
+import 'package:calterra/view/rehome.dart';
 import 'package:calterra/view/vehicleEmission.dart';
 import 'package:calterra/view/startup.dart';  
 import 'package:flutter/material.dart';
@@ -71,6 +72,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case "history":
       return PageTransition(
         child: const History(),
+        type: PageTransitionType.topToBottom,
+        settings: settings,
+      );
+    case "rehome":
+      return PageTransition(
+        child: const HomeView(),
         type: PageTransitionType.topToBottom,
         settings: settings,
       );
