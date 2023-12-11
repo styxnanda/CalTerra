@@ -55,6 +55,7 @@ class _AccountState extends State<Account> {
                       Icons.home,
                     ),
                     onPressed: () {
+                      debugPrint("Jlana");
                       Navigator.of(context).pushNamed(
                         "home",
                       );
