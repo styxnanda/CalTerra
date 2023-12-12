@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_food_emission.dart';
 import 'package:flutter/material.dart';
+import 'package:calterra/api/apiService.dart';
 import 'package:get/get.dart';
 import 'package:stacked/stacked.dart';
 import 'package:provider/provider.dart';
@@ -17,17 +18,15 @@ class FoodEmission extends StatefulWidget {
   State<FoodEmission> createState() => _FoodEmissionState();
 }
 
-Future<void> createFoodEmission(BuildContext context, String food_type) async {
+Future<http.Response> createFoodEmission(
+    BuildContext context, String food_type) async {
   final ApiService apiService = ApiService();
   final response = await apiService.postRequest(
-    'calculation/food',
-    {
-      'food_type': food_type,
-    },
-  );
-  debugPrint("Body: ${response.body}");
-  debugPrint("Code: ${response.statusCode}");
-
+      'calculation/food',
+      {
+        'food_type': food_type,
+      },
+      urlEncoded: true);
   if (response.statusCode == 200) {
     showDialog(
       context: context,

@@ -119,7 +119,7 @@ router.get("/user/monthly-emission", sessionChecker, async (req, res) => {
   }
 });
 
-router.get("/history/", sessionChecker, async (req, res) => {
+router.post("/history/", sessionChecker, async (req, res) => {
   const { userId, startDate, endDate } = req.body;
   try {
     const vehicleEmissions = await pool.query(
