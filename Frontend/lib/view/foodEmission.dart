@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_food_emission.dart';
 import 'package:flutter/material.dart';
 import 'package:calterra/api/apiService.dart';
@@ -44,7 +45,6 @@ Future<http.Response> createFoodEmission(
         );
       },
     );
-    return response;
   } else {
     showDialog(
       context: context,
