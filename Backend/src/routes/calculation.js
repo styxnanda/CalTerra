@@ -138,7 +138,13 @@ router.post("/vehicle", sessionChecker, async (req, res) => {
         let { vehicle_type, distance, fuel_type, vehicle_size } = req.body;
         let emission_factor = 0;
         let carbon_emission = 0;
-        let filter_data = vehicle_emission_factor.filter((data) => data.vehicle_type == vehicle_type && data.fuel_type == fuel_type && data.vehicle_size == vehicle_size);
+        let filter_data;
+        if (vehicle_type == "Car"){
+            filter_data  = vehicle_emission_factor.filter((data) => data.vehicle_type == vehicle_type && data.fuel_type == fuel_type && data.vehicle_size == vehicle_size);
+        }
+        else{
+            filter_data  = vehicle_emission_factor.filter((data) => data.vehicle_type == vehicle_type);
+        }
         // console.log(filter_data);
 
         emission_factor = filter_data[0].factor; 
