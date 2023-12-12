@@ -5,6 +5,7 @@ import 'package:calterra/view/history.dart';
 import 'package:calterra/view/home.dart';
 import 'package:calterra/view/homeEmission.dart';
 import 'package:calterra/view/login.dart';
+import 'package:calterra/view/rehome.dart';
 import 'package:flutter/material.dart';
 import 'package:calterra/view/startup.dart';
 import 'package:calterra/view/flightEmission.dart';

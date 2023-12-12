@@ -8,7 +8,14 @@ class ApiService{
 
   Future<http.Response> getData(String endpoint) async {
     final url = Uri.parse('$baseURL/$endpoint');
-    return await http.get(url);
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? cookie = preferences.getString('cookie');
+
+    var headers = <String, String>{};
+    if(cookie != null){
+      headers['Cookie'] = cookie;
+    }
+    return await http.get(url, headers: headers);
   }
 
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> data, {bool urlEncoded = false}) async {
@@ -23,11 +30,7 @@ class ApiService{
         ? data.entries.map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value.toString())}').join('&') 
         : jsonEncode(data);
 
-    // Print the request URL, headers, and body for debugging
-    // debugPrint('Request URL: $url');
-    // debugPrint('Request Headers: $headers');
-    // debugPrint('Request Body: $body');
-
+    debugPrint('POST $url\nHeaders: $headers\nBody: $body');
     return await http.post(url, headers: headers, body: body);
   }
 }
