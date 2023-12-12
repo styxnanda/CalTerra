@@ -16,6 +16,58 @@ class HomeEmission extends StatefulWidget {
   State<HomeEmission> createState() => _HomeEmissionState();
 }
 
+Future<void> createHomeAppliancesEmission(BuildContext context, List<Map<String, dynamic>> homeAppliance) async {
+  final ApiService apiService  = ApiService();
+  List<int> responseCode = [];
+  for (var appliance in homeAppliance) {
+    final Map<String, dynamic> data = {
+      'appliances_type': appliance['appliances_type'],
+      'duration_or_cycles': appliance['duration_or_cycles'].text.toString(),
+    };
+    final response = await apiService.postRequest('calculation/home_appliances', data);
+    responseCode.add(response.statusCode);
+  }
+
+  // check if all response code is 200
+  if (responseCode.every((element) => element == 200)) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Home Appliances emission created successfully.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );    
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to create home appliances emission.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 Future<void> createPowerSourceEmission(BuildContext context, List<Map<String, dynamic>> powerSourceList ) async {
   final ApiService apiService  = ApiService();
   List<int> responseCode = [];
@@ -71,6 +123,7 @@ Future<void> createPowerSourceEmission(BuildContext context, List<Map<String, dy
 
 class _HomeEmissionState extends State<HomeEmission> {
   int page = 0; // Default selected carousel page, (only 0, 1 possible)
+  final List<Map<String, dynamic>> homeAppliancesList = [];
   final List<Map<String, dynamic>> powerSourceList = [
     {
       'index': 0,
@@ -103,6 +156,93 @@ class _HomeEmissionState extends State<HomeEmission> {
     final PageController pageController = PageController(initialPage: page);
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    Widget homeApplianceWidget(Map<String, dynamic> homeAppliance){
+      TextEditingController usage = homeAppliance['duration_or_cycles'];
+
+      return Container(
+        margin: EdgeInsets.only(left: 15, right: 15, bottom: 15),   
+        padding: EdgeInsets.all(10), 
+        //box shadow
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.16),
+              offset: Offset(0, 3),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(homeAppliance['appliances_type'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Container(
+                  height: 32,
+                  width: screenWidth * 0.5 + 40,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    // print TextEditingController.text,
+                    controller: usage,
+                    onChanged: (value) {
+                    },                    
+                    decoration: InputDecoration(                     
+                      hintText: 'Usage',
+                      hintStyle: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        height: 0,
+                      ),
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        height: 0,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 99, 146, 38),
+                          width: 1,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                    ),
+                  ),
+                  
+                )
+              ],
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  homeAppliancesList.remove(homeAppliance);
+                  print(homeAppliancesList);                  
+                });
+              },
+              icon: Icon(Icons.delete),
+            )
+          ],
+        )
+      );
+    }  
 
     Widget powerSourceWidget(Map<String, dynamic> powerSource){
       String imageUrl = '';
@@ -287,7 +427,7 @@ class _HomeEmissionState extends State<HomeEmission> {
                       if (page == 0) {
                         createPowerSourceEmission(context, powerSourceList);
                       } else {
-                        // createHomeAppliancesEmission(context, homeAppliancesList);
+                        createHomeAppliancesEmission(context, homeAppliancesList);
                       }
                     },                    
                     child: Text(
@@ -475,11 +615,87 @@ class _HomeEmissionState extends State<HomeEmission> {
                           ),
                           // home appliances
                           Container(
-                            color: Colors.red,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                                  height: screenHeight * 0.1,
+                                  child: DropdownButtonFormField(                                    
+                                    onChanged: (value) {
+                                      setState(() {
+                                        homeAppliancesList.add({
+                                          'index' : homeAppliancesList.length,
+                                          'appliances_type': value,
+                                          'duration_or_cycles': TextEditingController(),
+                                        });
+                                      });
+                                    },
+                                    hint: Text('Select Home Appliances'),
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: Color.fromARGB(255, 99, 146, 38),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 0,
+                                      ),
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(
+                                        child: Text('Air Conditioner'),
+                                        value: 'Air Conditioner',
+                                      ),
+                                      DropdownMenuItem(
+                                        child: Text('Refrigerator'),
+                                        value: 'Refrigerator',
+                                      ),
+                                      DropdownMenuItem(
+                                        child: Text('Washing Machine'),
+                                        value: 'Washing Machine',
+                                      ),
+                                      DropdownMenuItem(
+                                        child: Text('TV'),
+                                        value: 'TV',
+                                      ),
+                                      DropdownMenuItem(
+                                        child: Text('Dishwasher'),
+                                        value: 'Dishwasher',
+                                      ),
+                                      DropdownMenuItem(
+                                        child: Text('Stove'),
+                                        value: 'Stove',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  height: screenHeight * 0.4,
+                                  child: ListView.builder(
+                                    itemCount: homeAppliancesList.length,
+                                    itemBuilder: (context, index) {
+                                      var homeAppliance = homeAppliancesList[index];
+                                      return homeApplianceWidget(homeAppliance);
+                                    },
+                                  )
+                                ),
+                              ],
+                            ) 
                           ),
                         ],
                       )
-                    ),              
+                    ),
                 ],
               ),
             ),

@@ -18,7 +18,7 @@ class FoodEmission extends StatefulWidget {
   State<FoodEmission> createState() => _FoodEmissionState();
 }
 
-Future<http.Response> createFoodEmission(
+Future<void> createFoodEmission(
     BuildContext context, String food_type) async {
   final ApiService apiService = ApiService();
   final response = await apiService.postRequest(
