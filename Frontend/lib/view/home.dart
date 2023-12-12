@@ -267,7 +267,11 @@ class _HomeState extends State<Home> {
                   icon: Icon(
                     Icons.calendar_month_rounded,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      "history",
+                    );
+                  },
                 ),
                 SizedBox(
                   width: 9,

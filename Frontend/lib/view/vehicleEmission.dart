@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_vehicle_emission.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -24,27 +25,91 @@ class VehicleEmission extends StatefulWidget {
   
 }
 
+Future<void> createVehicleEmission(BuildContext context, List<Map<String, dynamic>> vehicleList) async {
+  bool _isLoading = false;
+  // list of response code
+  List<int> responseCode = [];
+  final ApiService apiService = ApiService();
+  // create response for every vehicle
+  _isLoading = true;
+  for (var vehicle in vehicleList) {
+    // print vehicle
+    debugPrint("Request Body: $vehicle");
+    final response = await apiService.postRequest(
+      'calculation/vehicle',
+      {
+        'vehicle_type': vehicle['vehicle'],
+        'distance': vehicle['distance_controller'].text.toString(),
+        if (vehicle['vehicle'] == 'Car') 'fuel_type': vehicle['fuel_type'],
+        if (vehicle['vehicle'] == 'Car') 'vehicle_size': vehicle['vehicle_size'],
+      },
+    );
+    debugPrint("Body: ${response.body}");
+    debugPrint("Code: ${response.statusCode}");
+    responseCode.add(response.statusCode);
+  }
+  _isLoading = false;
+  // check if all response code is 200
+  if (responseCode.every((element) => element == 200)) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Vehicle emission created successfully.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );    
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to create vehicle emission.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+}
 
 class _VehicleEmissionState extends State<VehicleEmission> {
   // List<Widget> vehicleWidgetList = [];
-  final List<String> vehicleList = [];
-  final List<TextEditingController> distanceList = [];
+  final List<Map<String, dynamic>> vehicleList = [];
+  int vehicleIndex = 0;
 
-  String? fuel_type;
-  String? vehicle_size;
+  String fuel_type = '';
+  String vehicle_size = '';
   
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    Widget vehicleWidget(String vehicle) {
+    Widget vehicleWidget(Map<String, dynamic> vehicle) {
       String imageUrl = '';
       int colorValue = 0;
 
-      distanceList.add(TextEditingController());
+      int index = vehicle['index'];
 
-      switch (vehicle) {
+      switch (vehicle['vehicle']) {
         case 'Car':
           imageUrl = 'assets/image/front-car.png';
           colorValue = 0xFFFF4208;
@@ -115,7 +180,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(vehicle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text(vehicle['vehicle'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         Text(
                           "How far do you travel with this transportation?", 
                           style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
@@ -132,9 +197,9 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                     keyboardType: TextInputType.number,
                     // print TextEditingController.text,
                     onChanged: (value) {
-                      print(distanceList[vehicleList.indexOf(vehicle)].text);
+                      print(vehicle['distance_controller'].text);
                     },
-                    controller: distanceList[vehicleList.indexOf(vehicle)],
+                    controller: vehicle['distance_controller'],
                     decoration: InputDecoration(                     
                       hintText: 'Distance (km)',
                       hintStyle: TextStyle(
@@ -172,7 +237,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                   ),
                 ),
                 // if vehicle is "Car", add more text field 
-                if (vehicle == 'Car')
+                if (vehicle['vehicle'] == 'Car')
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -196,10 +261,11 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                             height: 0,
                           ),
                           hint: Text('Fuel Type...'),
-                          onChanged: (value) {
+                          onChanged: (value) {                            
                             setState(() {
-                              fuel_type = value.toString();  
-                              print(fuel_type);                          
+                              fuel_type = value.toString();
+                              vehicle['fuel_type'] = fuel_type;
+                              print(vehicle['fuel_type']);
                             });
                           },
                           decoration: InputDecoration(
@@ -268,10 +334,9 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           ),
                           hint: Text('Car Size...'),
                           onChanged: (value) {
-                            setState(() {
-                              vehicle_size = value.toString();  
-                              print(vehicle_size);                          
-                            });
+                            vehicle_size = value.toString();  
+                            vehicle['vehicle_size'] = vehicle_size;
+                            print(vehicle['vehicle_size']);
                           },
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -319,6 +384,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
               onPressed: () {
                 setState(() {
                   vehicleList.remove(vehicle);
+                  print(vehicleList);                  
                 });
               },
               icon: Icon(Icons.delete),
@@ -373,7 +439,14 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                vehicleList.add('Car');
+                                vehicleList.add({
+                                  'index': vehicleIndex,
+                                  'vehicle': 'Car',
+                                  'distance_controller': TextEditingController(),
+                                  'fuel_type': 'Petrol',
+                                  'vehicle_size': 'Small',
+                                });
+                                vehicleIndex++;
                               });
                               Navigator.pop(context);
                             },
@@ -408,7 +481,14 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                vehicleList.add('Bus');
+                                vehicleList.add({
+                                  'index': vehicleIndex,
+                                  'vehicle': 'Bus',
+                                  'distance_controller': TextEditingController(),
+                                  'fuel_type': '',
+                                  'vehicle_size': '',
+                                });
+                                vehicleIndex++;
                               });
                               Navigator.pop(context);
                             },
@@ -442,7 +522,14 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                vehicleList.add('Train');
+                                vehicleList.add({
+                                  'index': vehicleIndex,
+                                  'vehicle': 'Train',
+                                  'distance_controller': TextEditingController(),
+                                  'fuel_type': '',
+                                  'vehicle_size': '',
+                                });
+                                vehicleIndex++;
                               });
                               Navigator.pop(context);
                             },
@@ -476,7 +563,14 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                vehicleList.add('Motorbike');
+                                vehicleList.add({
+                                  'index': vehicleIndex,
+                                  'vehicle': 'Motorbike',
+                                  'distance_controller': TextEditingController(),
+                                  'fuel_type': '',
+                                  'vehicle_size': '',
+                                });
+                                vehicleIndex++;
                               });
                               Navigator.pop(context);
                             },
@@ -510,7 +604,14 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
                               setState(() {    
-                                vehicleList.add('Electric Bicycle');
+                                vehicleList.add({
+                                  'index': vehicleIndex,
+                                  'vehicle': 'Electric Bicycle',
+                                  'distance_controller': TextEditingController(),
+                                  'fuel_type': '',
+                                  'vehicle_size': '',
+                                });
+                                vehicleIndex++;
                               });
                               Navigator.pop(context);
                             },
@@ -605,7 +706,9 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         ),
                     ),
                     ElevatedButton(
-                      onPressed: (){},
+                      onPressed: (){
+                        createVehicleEmission(context, vehicleList);
+                      },
                       child: Text(
                         'Save', 
                         style: TextStyle(
@@ -757,6 +860,7 @@ class _VehicleEmissionState extends State<VehicleEmission> {
                         child: ListView.builder(
                           itemCount: vehicleList.length,
                           itemBuilder: (context, index) {
+                            print(vehicleList);
                             var vehicle = vehicleList[index];
                             print(vehicle);
                             return vehicleWidget(vehicle);
