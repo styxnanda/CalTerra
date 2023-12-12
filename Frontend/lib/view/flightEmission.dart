@@ -27,16 +27,17 @@ class Airport {
 
 }
 
-Future<void> createFlightEmission(BuildContext context, from, String to, String tripType, String flightClass) async {
+Future<void> createFlightEmission(BuildContext context, InputType inputType,  String from, String to, FlightType flightType, String flightClass, {int distance = 0}) async {
   // SharedPreferences preferences = await SharedPreferences.getInstance();
   // String? cookie = preferences.getString('cookie');
   final ApiService api = ApiService();
   final response = await api.postRequest('calculation/flight', {
-      'from': from,
-      'to': to,
-      'trip_type': tripType,
-      'flight_class': flightClass,
-    },
+    if (inputType == InputType.itinerary) 'from': from,    
+    if (inputType == InputType.itinerary) 'to': to,
+    if (inputType == InputType.itinerary) 'trip_type': flightType == FlightType.oneWay ? 'one_way' : 'round',
+    if (inputType == InputType.flightDistance) 'distance_op': distance.toString(),
+    'flight_class': flightClass,
+  },
     // urlEncoded: true,
   );
 
@@ -107,8 +108,10 @@ class _FlightEmissionState extends State<FlightEmission>{
   final TextEditingController airportControllerTo = TextEditingController();
   final TextEditingController flightClassController = TextEditingController();
 
-  InputType? _inputType = InputType.itinerary;
-  FlightType? _flightType = FlightType.oneWay;
+  final TextEditingController distanceController = TextEditingController();
+
+  InputType _inputType = InputType.itinerary;
+  FlightType _flightType = FlightType.oneWay;
   List<Airport> airportList = []; 
 
   Airport? selectedFromAirport;
@@ -148,23 +151,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                 children: [
                   ElevatedButton(
                     onPressed: (){
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Alert Dialog Title'),
-                              content: Text('Alert Dialog Content'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('Close'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                        Navigator.pop(context);
                       },
                       child: Text(
                       'Cancel', 
@@ -188,9 +175,13 @@ class _FlightEmissionState extends State<FlightEmission>{
                   ),
                   ElevatedButton(
                     onPressed: (){
-                      if (selectedFromAirport != null && selectedToAirport != null) {
-                        createFlightEmission(context, selectedFromAirport!.iata, selectedToAirport!.iata, flight_type!, flight_class!);
-                      } else {
+                      if (selectedFromAirport != null && selectedToAirport != null && _inputType == InputType.itinerary) {
+                        createFlightEmission(context, _inputType, selectedFromAirport!.iata, selectedToAirport!.iata, _flightType, flight_class!);
+                      } 
+                      else if (distanceController.text.isNotEmpty && _inputType == InputType.flightDistance) {
+                        createFlightEmission(context, _inputType, "", "", _flightType, flight_class!, distance: int.parse(distanceController.text));
+                      }
+                      else {
                         // Show a dialog or a snackbar to inform the user to select both airports
                         showDialog(
                           context: context,
@@ -328,7 +319,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                         groupValue: _inputType,
                                         onChanged: (InputType? value) {
                                           setState(() {
-                                            _inputType = value;
+                                            _inputType = value!;
                                           });
                                         },
                                       ),
@@ -357,7 +348,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                         hintText: "Select Airport...",
                                         textStyle: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.normal,
                                           height: 0,
@@ -412,7 +403,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                         'To: ',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           fontFamily: 'Poppins',
                                           fontWeight: FontWeight.normal,
                                           height: 0,
@@ -497,7 +488,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                             groupValue: _flightType,
                                             onChanged: (FlightType? value) {
                                               setState(() {
-                                                _flightType = value;
+                                                _flightType = value!;
                                                 flight_type = "round";
                                               });
                                             },
@@ -523,7 +514,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                             groupValue: _flightType,
                                             onChanged: (FlightType? value) {
                                               setState(() {
-                                                _flightType = value;
+                                                _flightType = value!;
                                                 flight_type = "one_way";
                                               });
                                             },
@@ -551,7 +542,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                         groupValue: _inputType,
                                         onChanged: (InputType? value) {
                                           setState(() {
-                                            _inputType = value;
+                                            _inputType = value!;
                                           });
                                         },
                                       ),
@@ -565,6 +556,7 @@ class _FlightEmissionState extends State<FlightEmission>{
                                     width: screenWidth * 0.9,
                                     child: TextFormField(
                                       keyboardType: TextInputType.number,
+                                      controller: distanceController,
                                       decoration: InputDecoration(
                                         hintText: 'Distance (km)',
                                         hintStyle: TextStyle(
