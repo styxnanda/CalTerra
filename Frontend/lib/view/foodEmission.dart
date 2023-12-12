@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_food_emission.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,20 +17,17 @@ class FoodEmission extends StatefulWidget {
   State<FoodEmission> createState() => _FoodEmissionState();
 }
 
-Future<http.Response> createFoodEmission(
-    BuildContext context, String food_type) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  String? cookie = preferences.getString('cookie');
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:4322/calculation/food'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Cookie': cookie!,
-    },
-    body: jsonEncode(<String, String>{
+Future<void> createFoodEmission(BuildContext context, String food_type) async {
+  final ApiService apiService = ApiService();
+  final response = await apiService.postRequest(
+    'calculation/food',
+    {
       'food_type': food_type,
-    }),
+    },
   );
+  debugPrint("Body: ${response.body}");
+  debugPrint("Code: ${response.statusCode}");
+
   if (response.statusCode == 200) {
     showDialog(
       context: context,
@@ -48,7 +46,6 @@ Future<http.Response> createFoodEmission(
         );
       },
     );
-    return response;
   } else {
     showDialog(
       context: context,

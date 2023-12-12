@@ -136,15 +136,9 @@ class _HomeState extends State<Home> {
                           padding: EdgeInsets.all(5),
                           child: ElevatedButton(
                             onPressed: () {                                                                                                               
-                              setState(() {    
-                                // emissionList.add('Train');
-                                Navigator.of(context).pushNamed(
-                                  "homeEmission",
-                                );
-                              });
                                   Navigator.of(context).pushNamed(
                                   "homeEmission",
-                                );
+                              );
                               // Navigator.pop(context);
                             },
                             child: Column(
