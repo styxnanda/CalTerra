@@ -1,3 +1,4 @@
+import "package:calterra/viewModel/emission_data.dart";
 import "package:flutter/material.dart";
 import "package:http/http.dart" as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,5 +33,14 @@ class ApiService{
 
     debugPrint('POST $url\nHeaders: $headers\nBody: $body');
     return await http.post(url, headers: headers, body: body);
+  }
+
+  Future<EmissionData> fetchEmissionData() async {
+    final response = await getData('user/change');
+    if(response.statusCode == 200){
+      return EmissionData.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to fetch emission data with error code: ${response.statusCode}');
+    }
   }
 }

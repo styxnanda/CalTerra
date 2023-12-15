@@ -22,7 +22,7 @@ class _StartupState extends State<Startup> {
     // check if cookie is not empty
     if (prefs.getString('cookie') != null) {
       Navigator.of(context).pushNamed(
-        "home",
+        "rehome",
       );
     }
   }

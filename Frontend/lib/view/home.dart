@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:calterra/api/apiService.dart';
 import 'package:calterra/viewModel/view_home.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:stacked/stacked.dart';
 
 class Home extends StatefulWidget {
@@ -10,6 +14,26 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String username = "";
+
+  @override
+  void initState(){
+    super.initState();
+    fetchUserDetail();
+  }
+
+  Future<void> fetchUserDetail() async {
+    ApiService apiService = ApiService();
+    http.Response response = await apiService.getData('account/user');
+    if(response.statusCode == 200){
+      var data = json.decode(response.body);
+      setState(() {
+        username = data['username'];
+      });
+    } else {
+      throw Exception('Failed to fetch username with status code ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +359,7 @@ class _HomeState extends State<Home> {
                           style: TextStyle(
                             fontSize: 20,
                           ),
-                          "Welcome, to Calterra",
+                          "Welcome, $username to Calterra!",
                         ),
                       )
                     ],
