@@ -119,6 +119,36 @@ router.get("/user/monthly-emission", sessionChecker, async (req, res) => {
   }
 });
 
+// Get change of emission based on last month usage
+router.get("/user/change", sessionChecker, async(req, res) => {
+  try {
+    const userEmissions = await pool.query(
+      "SELECT * FROM user_monthly_emissions WHERE user_id = $1 ORDER BY year_month DESC LIMIT 2",
+      [req.session.passport.user]
+    );
+
+    if(userEmissions.rows.length === 2){
+      const change = userEmissions.rows[0].monthly_total_emission - userEmissions.rows[1].monthly_total_emission;
+
+      const responseData = {
+        latestMonth: userEmissions.rows[0],
+        previousMonth: userEmissions.rows[1],
+        change: parseFloat(change.toFixed(2))
+      };
+      res.json(responseData);
+    } else if (userEmissions.rows.length === 1){
+      res.json({
+        latestMonth: userEmissions.rows[0],
+        change: null
+      });
+    } else {
+      res.status(404).json("No emission data found.");
+    }
+  } catch (error) {
+    res.status(500).json("Server error");
+  }
+});
+
 router.post("/history/", sessionChecker, async (req, res) => {
   const { userId, startDate, endDate } = req.body;
   try {
@@ -174,6 +204,41 @@ router.post("/history/", sessionChecker, async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/user/contribution", sessionChecker, async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const pastDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+    const userContribution = await pool.query(`SELECT 'vehicle' as type, SUM(emission) as total_emission
+    FROM public.vehicle_emissions
+    WHERE user_id = $1 AND "timestamp" > $2
+    UNION ALL
+    SELECT 'house' as type, SUM(emission) as total_emission
+    FROM (
+      SELECT emission FROM public.power_sources_emissions WHERE user_id = $1 AND "timestamp" > $2
+      UNION ALL
+      SELECT emission FROM public.home_appliances_emissions WHERE user_id = $1 AND "timestamp" > $2
+    ) as house_emissions
+    UNION ALL
+    SELECT 'food' as type, SUM(emission) as total_emission
+    FROM public.food_emissions
+    WHERE user_id = $1 AND "timestamp" > $2
+    UNION ALL
+    SELECT 'flight' as type, SUM(emission) as total_emission
+    FROM public.flight_emissions
+    WHERE user_id = $1 AND "timestamp" > $2;
+  `, [req.session.passport.user, pastDate]);
+
+      if(userContribution.rows.length > 0){
+        res.json(userContribution.rows);
+      } else {
+        res.status(404).json("No contribution data found.");
+      }
+  } catch (error) {
+    console.error(err);
+    res.status(500).send("Server error");
   }
 });
 

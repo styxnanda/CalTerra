@@ -31,7 +31,7 @@ Future<void> login(BuildContext context, String username, String password) async
   if (response.statusCode == 200) {
     // Successful login logic
     _showDialog(context, "Login Success", "You have successfully logged in", () {
-      Navigator.of(context).pushNamed("home");
+      Navigator.of(context).pushNamed("rehome");
     });
     String? cookie = response.headers['set-cookie'];
     if (cookie != null) {
