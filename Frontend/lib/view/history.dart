@@ -11,6 +11,8 @@ import 'package:calterra/viewModel/view_account.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+bool isLoading = false;
+
 class History extends StatefulWidget {
   const History({super.key});
 
@@ -27,6 +29,7 @@ class _HistoryState extends State<History> {
   @override
   void initState() {
     super.initState();
+    isLoading = true;
     fetchUserIdAndEmissionHistory();
   }
 
@@ -39,6 +42,7 @@ class _HistoryState extends State<History> {
             await fetchEmissionHistory(userId, timeRange);
         setState(() {
           emissionEntries = entries;
+          isLoading = false;
         });
       } else {
         debugPrint("User ID is empty or null");
@@ -56,6 +60,7 @@ class _HistoryState extends State<History> {
             await fetchEmissionHistory(userId!, timeRange);
         setState(() {
           emissionEntries = entries;
+          isLoading = false;
         });
       } catch (e) {
         debugPrint("error updating history: $e");
@@ -123,7 +128,9 @@ class _HistoryState extends State<History> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Stack(
+      children: [
+    Scaffold(
         body: Container(
             decoration: BoxDecoration(color: Color.fromRGBO(232, 252, 223, 1)),
             child: Column(
@@ -168,9 +175,10 @@ class _HistoryState extends State<History> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 4.0),
                                 child: ElevatedButton(
-                                    onPressed: () {
+                                    onPressed: () async{
                                       setState(() {
                                         timeRange = 0;
+                                        isLoading = true;
                                       });
                                       updateEmissionHistory();
                                     },
@@ -200,6 +208,7 @@ class _HistoryState extends State<History> {
                                     onPressed: () {
                                       setState(() {
                                         timeRange = 1;
+                                        isLoading = true;
                                       });
                                       updateEmissionHistory();
                                     },
@@ -230,6 +239,7 @@ class _HistoryState extends State<History> {
                                     onPressed: () {
                                       setState(() {
                                         timeRange = 2;
+                                        isLoading = true;
                                       });
                                       updateEmissionHistory();
                                     },
@@ -259,6 +269,7 @@ class _HistoryState extends State<History> {
                                     onPressed: () {
                                       setState(() {
                                         timeRange = 3;
+                                        isLoading = true;
                                       });
                                       updateEmissionHistory();
                                     },
@@ -341,6 +352,19 @@ class _HistoryState extends State<History> {
                   ),
                 ),
               ],
-            )));
+            )
+          ),
+        ),
+        if (isLoading)
+            const Opacity(
+              opacity: 0.8,
+              child: ModalBarrier(dismissible: false, color: Colors.black),
+            ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+      ],
+    );
   }
 }

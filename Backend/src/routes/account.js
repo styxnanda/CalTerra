@@ -242,4 +242,50 @@ router.get("/user/contribution", sessionChecker, async (req, res) => {
   }
 });
 
+// update username and password
+router.put("/user/update", sessionChecker, async (req, res) => {
+  const { username, oldPassword, newPassword } = req.body;
+  try {
+    // check if user exists
+    const user = await pool.query("SELECT * FROM users WHERE id = $1", [
+      req.session.passport.user,
+    ]);
+    if (!user.rows.length > 0) {
+      return res.status(401).json("User not found!");
+    }
+    // if user only wants to update username
+    if (oldPassword === "" && newPassword === "") {
+      const updatedUser = await pool.query(
+        "UPDATE users SET username = $1 WHERE id = $2 RETURNING *",
+        [username, req.session.passport.user]
+      );
+      return res.json(updatedUser.rows[0]);
+    }
+
+    // check if old password is correct
+    const validPassword = await bcrypt.compare(
+      oldPassword,
+      user.rows[0].password_hash
+    );
+    if (!validPassword) {
+      return res.status(401).json("Invalid credentials!");
+    }
+
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // update user
+    const updatedUser = await pool.query(
+      "UPDATE users SET username = $1, password_hash = $2 WHERE id = $3 RETURNING *",
+      [username, hashedPassword, req.session.passport.user]
+    );
+
+    res.json(updatedUser.rows[0]);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json("Server error");
+  }
+});
+
 module.exports = [router, sessionChecker];
