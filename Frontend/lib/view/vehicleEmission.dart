@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-
+bool isLoading = false;
 
 Future logout() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -26,12 +26,30 @@ class VehicleEmission extends StatefulWidget {
 }
 
 Future<void> createVehicleEmission(BuildContext context, List<Map<String, dynamic>> vehicleList) async {
-  bool _isLoading = false;
   // list of response code
   List<int> responseCode = [];
+  if (vehicleList.length == 0) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Please add at least one vehicle.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return;
+  }
   final ApiService apiService = ApiService();
   // create response for every vehicle
-  _isLoading = true;
   for (var vehicle in vehicleList) {
     // print vehicle
     debugPrint("Request Body: $vehicle");
@@ -48,7 +66,6 @@ Future<void> createVehicleEmission(BuildContext context, List<Map<String, dynami
     debugPrint("Code: ${response.statusCode}");
     responseCode.add(response.statusCode);
   }
-  _isLoading = false;
   // check if all response code is 200
   if (responseCode.every((element) => element == 200)) {
     showDialog(
@@ -61,7 +78,7 @@ Future<void> createVehicleEmission(BuildContext context, List<Map<String, dynami
             TextButton(
               child: Text('Close'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pushNamed("history");
               },
             ),
           ],
@@ -654,226 +671,247 @@ class _VehicleEmissionState extends State<VehicleEmission> {
 
     return ViewModelBuilder.reactive(
       viewModelBuilder: () => ViewVehicleEmission(),
-      builder: (context, model, child) => Scaffold(
-        backgroundColor: Color.fromARGB(255, 172, 49, 49),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Color.fromARGB(255, 99, 146, 38),
-          foregroundColor: Colors.white,
-          onPressed: () {
-            selectVehicleBottomDialog(context);
-          },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Icon(
-            Icons.add,
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        bottomNavigationBar: Material(
-          elevation: 20,
-          child: Container(
-            height: screenHeight * 0.1,
-            width: screenWidth,
-            color: Colors.white,
-            child: Stack(
-              children: [
-                ButtonBar(
-                  // aligment horizontal
-                  alignment: MainAxisAlignment.spaceEvenly,
+      builder: (context, model, child) => Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Color.fromARGB(255, 172, 49, 49),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Color.fromARGB(255, 99, 146, 38),
+              foregroundColor: Colors.white,
+              onPressed: () {
+                selectVehicleBottomDialog(context);
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Icon(
+                Icons.add,
+              ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            bottomNavigationBar: Material(
+              elevation: 20,
+              child: Container(
+                height: screenHeight * 0.1,
+                width: screenWidth,
+                color: Colors.white,
+                child: Stack(
                   children: [
-                    ElevatedButton(
-                      onPressed: (){},
-                        child: Text(
-                        'Cancel', 
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 99, 146, 38), 
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold)
-                          ),
-                        style: ElevatedButton.styleFrom(
-                          elevation: 4,
-                          minimumSize: Size(160, 45),
-                          // border color
-                          primary: Colors.white,
-                          side: BorderSide(
-                            color: Color.fromARGB(255, 99, 146, 38),
-                            width: 2,
-                          ),                        
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                    ButtonBar(
+                      // aligment horizontal
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: (){
+                            Navigator.of(context).pop(); 
+                          },
+                            child: Text(
+                            'Cancel', 
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 99, 146, 38), 
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)
+                              ),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 4,
+                              minimumSize: Size(160, 45),
+                              // border color
+                              primary: Colors.white,
+                              side: BorderSide(
+                                color: Color.fromARGB(255, 99, 146, 38),
+                                width: 2,
+                              ),                        
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async{
+                            setState(() {
+                              isLoading = true;
+                            });
+                            await createVehicleEmission(context, vehicleList);
+                            setState(() {
+                              isLoading = false;
+                            });
+                          },
+                          child: Text(
+                            'Save', 
+                            style: TextStyle(
+                              color: Colors.white, 
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)
+                              ),
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4,
+                            minimumSize: Size(160, 45),
+                            backgroundColor: Color.fromARGB(255, 99, 146, 38),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
                         ),
-                    ),
-                    ElevatedButton(
-                      onPressed: (){
-                        createVehicleEmission(context, vehicleList);
-                      },
-                      child: Text(
-                        'Save', 
-                        style: TextStyle(
-                          color: Colors.white, 
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold)
-                          ),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 4,
-                        minimumSize: Size(160, 45),
-                        backgroundColor: Color.fromARGB(255, 99, 146, 38),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ),
-        body: Stack(
-          children: [
-            // create back button in top left corner and "Back" text
-            Positioned(
-              left: screenWidth * 0.02,
-              top: screenHeight * 0.05,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    // onPressed Navigate to home.dart
-                    onPressed: () {
-                      // back
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.arrow_back_ios),
-                    color: Colors.white,
-                    iconSize: 16,
-                  ),
-                  Text(
-                    'Back',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                      height: 0,
-                    ),
-                  ),
-                ],
               ),
             ),
-            Positioned(
-              top: screenHeight * 0.2,
-              child: Container(
-                decoration: const ShapeDecoration(
-                  color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                ),
-                height: screenHeight,
-                width: screenWidth,
-                child: Column(
-                  // align start
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // text "Vehicle Emission"
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: 20,
-                        left: 20,
-                        bottom: 5
+            body: Stack(
+              children: [
+                // create back button in top left corner and "Back" text
+                Positioned(
+                  left: screenWidth * 0.02,
+                  top: screenHeight * 0.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        // onPressed Navigate to home.dart
+                        onPressed: () {
+                          // back
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.arrow_back_ios),
+                        color: Colors.white,
+                        iconSize: 16,
                       ),
-                      child: Text(
-                        'Vehicle Emission',
+                      Text(
+                        'Back',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                          height: 0,
-                        ),
-                      ),
-                    ),
-                    // text "Vehicle Type"
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: 20,
-                        left: 20,
-                        right: 20
-                      ),
-                      child: Text(
-                        'Please select your transport do you use most frequently.',
-                        style: TextStyle(                        
+                          color: Colors.white,
                           fontSize: 16,
                           fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
                           height: 0,
                         ),
                       ),
-                    ),
-                    // long button
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: 20,
-                        left: 20,
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: screenHeight * 0.2,
+                  child: Container(
+                    decoration: const ShapeDecoration(
+                      color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          selectVehicleBottomDialog(context);
-                        },
-                        style: ButtonStyle(
-                          elevation: MaterialStateProperty.all<double>(3),
-                          foregroundColor: MaterialStatePropertyAll<Color>(Colors.grey[600]!),
-                          textStyle: MaterialStateProperty.all<TextStyle>(
-                            TextStyle(
-                              fontSize: 16,
-                              color: Color.fromARGB(125, 0, 0, 0),
+                    ),
+                    height: screenHeight,
+                    width: screenWidth,
+                    child: Column(
+                      // align start
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // text "Vehicle Emission"
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 20,
+                            left: 20,
+                            bottom: 5
+                          ),
+                          child: Text(
+                            'Vehicle Emission',
+                            style: TextStyle(
+                              fontSize: 24,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w600,
                               height: 0,
                             ),
                           ),
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                          fixedSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.9, 35)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        ),
+                        // text "Vehicle Type"
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 20,
+                            left: 20,
+                            right: 20
+                          ),
+                          child: Text(
+                            'Please select your transport do you use most frequently.',
+                            style: TextStyle(                        
+                              fontSize: 16,
+                              fontFamily: 'Poppins',
+                              height: 0,
                             ),
                           ),
                         ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: const Text(
-                            "Select transport...",
-                            textAlign: TextAlign.start,
+                        // long button
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: 20,
+                            left: 20,
                           ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              selectVehicleBottomDialog(context);
+                            },
+                            style: ButtonStyle(
+                              elevation: MaterialStateProperty.all<double>(3),
+                              foregroundColor: MaterialStatePropertyAll<Color>(Colors.grey[600]!),
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                TextStyle(
+                                  fontSize: 16,
+                                  color: Color.fromARGB(125, 0, 0, 0),
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w600,
+                                  height: 0,
+                                ),
+                              ),
+                              backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                              fixedSize: MaterialStateProperty.all<Size>(Size(screenWidth * 0.9, 35)),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                "Select transport...",
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                          )
                         ),
-                      )
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: SizedBox(
+                            height: screenHeight * 0.5,
+                            child: ListView.builder(
+                              itemCount: vehicleList.length,
+                              itemBuilder: (context, index) {
+                                print(vehicleList);
+                                var vehicle = vehicleList[index];
+                                print(vehicle);
+                                return vehicleWidget(vehicle);
+                              },
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: SizedBox(
-                        height: screenHeight * 0.5,
-                        child: ListView.builder(
-                          itemCount: vehicleList.length,
-                          itemBuilder: (context, index) {
-                            print(vehicleList);
-                            var vehicle = vehicleList[index];
-                            print(vehicle);
-                            return vehicleWidget(vehicle);
-                          },
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              )
+                  )
+                )
+              ],
             )
-          ],
-        )
+          ),
+          if (isLoading)
+            const Opacity(
+              opacity: 0.8,
+              child: ModalBarrier(dismissible: false, color: Colors.black),
+            ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }

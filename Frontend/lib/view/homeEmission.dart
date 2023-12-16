@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 import 'package:stacked/stacked.dart';
 import 'package:provider/provider.dart';
 
+bool isLoading = false;
+
 class HomeEmission extends StatefulWidget {
   const HomeEmission({Key? key}) : super(key: key);
 
@@ -387,323 +389,345 @@ class _HomeEmissionState extends State<HomeEmission> {
 
     return ViewModelBuilder.reactive(
       viewModelBuilder: () => ViewHomeEmission(),
-      builder: (context, model, child) => Scaffold(
-      bottomNavigationBar: Container(
-          height: screenHeight * 0.1,
-          width: screenWidth,
-          color: Colors.white,
-          child: Stack(
-            children: [
-              ButtonBar(
-                // aligment horizontal
-                alignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: (){
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                      'Cancel', 
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 99, 146, 38), 
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold)
-                        ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(160, 45),
-                        // border color
-                        primary: Colors.white,
-                        side: BorderSide(
-                          color: Color.fromARGB(255, 99, 146, 38),
-                          width: 2,
-                        ),                        
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (page == 0) {
-                        createPowerSourceEmission(context, powerSourceList);
-                      } else {
-                        createHomeAppliancesEmission(context, homeAppliancesList);
-                      }
-                    },                    
-                    child: Text(
-                      'Save', 
-                      style: TextStyle(
-                        color: Colors.white, 
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold)
-                        ),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(160, 45),
-                      backgroundColor: Color.fromARGB(255, 99, 146, 38),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      body: Container(
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(33, 124, 178, 1),
-      ),
-      child: Column(
-        children: [
-          Container(
-              padding: EdgeInsets.only(top: 40, left: 20, right: 20),
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              child: Column(children: [
-                Row(
-                  children: [
-                    Icon(Icons.arrow_back_ios, size: 20, color: Colors.white),
-                    InkWell(
-                        onTap: () {
-                          Get.back();
-                        },
-                        child: Text(
-                          "Back",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "Poppins",
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal),
-                        )),
-                  ],
-                ),
-                Align(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset(
-                      "assets/image/Home-Emission-Icon.png",
-                      width: 200,
-                      height: 110,
-                      fit: BoxFit.contain,
-                    ))
-              ])),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
+      builder: (context, model, child) => Stack(
+        children: [        
+            Scaffold(
+              bottomNavigationBar: Container(
+                  height: screenHeight * 0.1,
+                  width: screenWidth,
                   color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  )),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20),
-                  Row(
+                  child: Stack(
                     children: [
-                      SizedBox(width: 30),
-                      Text(
-                        "Home Emission",
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromRGBO(0, 0, 0, 1),
-                        ),
+                      ButtonBar(
+                        // aligment horizontal
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: (){
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                              'Cancel', 
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 99, 146, 38), 
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold)
+                                ),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(160, 45),
+                                // border color
+                                primary: Colors.white,
+                                side: BorderSide(
+                                  color: Color.fromARGB(255, 99, 146, 38),
+                                  width: 2,
+                                ),                        
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async{
+                              setState(() {
+                                isLoading = true;
+                              });
+                              if (page == 0) {
+                                await createPowerSourceEmission(context, powerSourceList);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              } else {
+                                await createHomeAppliancesEmission(context, homeAppliancesList);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            },                    
+                            child: Text(
+                              'Save', 
+                              style: TextStyle(
+                                color: Colors.white, 
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold)
+                                ),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(160, 45),
+                              backgroundColor: Color.fromARGB(255, 99, 146, 38),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
+                ),
+              body: Container(
+              decoration: BoxDecoration(
+                color: Color.fromRGBO(33, 124, 178, 1),
+              ),
+              child: Column(
+                children: [
                   Container(
-                      color: Colors.white,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      page = 0;
-                                      pageController.animateToPage(page,
-                                          duration:
-                                              Duration(milliseconds: 100),
-                                          curve: Curves.easeIn);
-                                    });
-                                  },
-                                  child: Text("Power Sources",
-                                      style: TextStyle(
-                                        color: page == 0
-                                            ? Colors.white
-                                            : Color.fromRGBO(99, 146, 38, 1),
-                                          fontFamily: "Poppins",
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    fixedSize: Size(150, 25),
-                                    backgroundColor: page == 0
-                                        ? Color.fromRGBO(99, 146, 38, 1)
-                                        : Colors.white,
-                                      side: BorderSide(
-                                          color:
-                                              Color.fromRGBO(99, 146, 38, 1)),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30.0)
-                                )
-                              )
-                            )
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    page = 1;
-                                    pageController.animateToPage(page,
-                                        duration: Duration(milliseconds: 100),
-                                        curve: Curves.easeIn);
-                                  });
+                      padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                      width: MediaQuery.of(context).size.width,
+                      height: 200,
+                      child: Column(children: [
+                        Row(
+                          children: [
+                            Icon(Icons.arrow_back_ios, size: 20, color: Colors.white),
+                            InkWell(
+                                onTap: () {
+                                  Get.back();
                                 },
-                                child: Text("Home Appliances",
-                                    style: TextStyle(
-                                        color: page == 1
-                                            ? Colors.white
-                                            : Color.fromRGBO(99, 146, 38, 1),
-                                        fontFamily: "Poppins",
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold)),
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(150, 25),
-                                    backgroundColor: page == 1
-                                        ? Color.fromRGBO(99, 146, 38, 1)
-                                        : Colors.white,
-                                    foregroundColor: Colors.white,
-                                    side: BorderSide(
-                                        color:
-                                            Color.fromRGBO(99, 146, 38, 1)),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30.0)
-                                )
-                              )
-                            )
-                          )
-                        ],
-                      )
-                    ),
-                    Container(
-                      // padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                      height: screenHeight * 0.5,
-                      child: PageView(
-                        controller: pageController,
-                        onPageChanged: (value) {
-                          setState(() {
-                            page = value;
-                          });                        
-                        },
+                                child: Text(
+                                  "Back",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Poppins",
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.normal),
+                                )),
+                          ],
+                        ),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: Image.asset(
+                              "assets/image/Home-Emission-Icon.png",
+                              width: 200,
+                              height: 110,
+                              fit: BoxFit.contain,
+                            ))
+                      ])),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          )),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Container(
-                            height: screenHeight * 0.5,
-                            child: ListView.builder(
-                              itemCount: powerSourceList.length,
-                              itemBuilder: (context, index) {
-                                print(powerSourceList[index]);
-                                var powerSource = powerSourceList[index];
-                                return powerSourceWidget(powerSource);
-                              },
-                            )
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              SizedBox(width: 30),
+                              Text(
+                                "Home Emission",
+                                style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromRGBO(0, 0, 0, 1),
+                                ),
+                              ),
+                            ],
                           ),
-                          // home appliances
                           Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-                                  height: screenHeight * 0.1,
-                                  child: DropdownButtonFormField(                                    
-                                    onChanged: (value) {
-                                      setState(() {
-                                        homeAppliancesList.add({
-                                          'index' : homeAppliancesList.length,
-                                          'appliances_type': value,
-                                          'duration_or_cycles': TextEditingController(),
-                                        });
-                                      });
-                                    },
-                                    hint: Text('Select Home Appliances'),
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                          color: Color.fromARGB(255, 99, 146, 38),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 0,
-                                      ),
-                                    ),
-                                    items: [
-                                      DropdownMenuItem(
-                                        child: Text('Air Conditioner'),
-                                        value: 'Air Conditioner',
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text('Refrigerator'),
-                                        value: 'Refrigerator',
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text('Washing Machine'),
-                                        value: 'Washing Machine',
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text('TV'),
-                                        value: 'TV',
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text('Dishwasher'),
-                                        value: 'Dishwasher',
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text('Stove'),
-                                        value: 'Stove',
-                                      ),
-                                    ],
+                              color: Colors.white,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              page = 0;
+                                              pageController.animateToPage(page,
+                                                  duration:
+                                                      Duration(milliseconds: 100),
+                                                  curve: Curves.easeIn);
+                                            });
+                                          },
+                                          child: Text("Power Sources",
+                                              style: TextStyle(
+                                                color: page == 0
+                                                    ? Colors.white
+                                                    : Color.fromRGBO(99, 146, 38, 1),
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold)),
+                                          style: ElevatedButton.styleFrom(
+                                            fixedSize: Size(150, 25),
+                                            backgroundColor: page == 0
+                                                ? Color.fromRGBO(99, 146, 38, 1)
+                                                : Colors.white,
+                                              side: BorderSide(
+                                                  color:
+                                                      Color.fromRGBO(99, 146, 38, 1)),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(30.0)
+                                        )
+                                      )
+                                    )
                                   ),
-                                ),
-                                Container(
-                                  height: screenHeight * 0.4,
-                                  child: ListView.builder(
-                                    itemCount: homeAppliancesList.length,
-                                    itemBuilder: (context, index) {
-                                      var homeAppliance = homeAppliancesList[index];
-                                      return homeApplianceWidget(homeAppliance);
-                                    },
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            page = 1;
+                                            pageController.animateToPage(page,
+                                                duration: Duration(milliseconds: 100),
+                                                curve: Curves.easeIn);
+                                          });
+                                        },
+                                        child: Text("Home Appliances",
+                                            style: TextStyle(
+                                                color: page == 1
+                                                    ? Colors.white
+                                                    : Color.fromRGBO(99, 146, 38, 1),
+                                                fontFamily: "Poppins",
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold)),
+                                        style: ElevatedButton.styleFrom(
+                                          fixedSize: Size(150, 25),
+                                            backgroundColor: page == 1
+                                                ? Color.fromRGBO(99, 146, 38, 1)
+                                                : Colors.white,
+                                            foregroundColor: Colors.white,
+                                            side: BorderSide(
+                                                color:
+                                                    Color.fromRGBO(99, 146, 38, 1)),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(30.0)
+                                        )
+                                      )
+                                    )
                                   )
-                                ),
-                              ],
-                            ) 
-                          ),
+                                ],
+                              )
+                            ),
+                            Container(
+                              // padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                              height: screenHeight * 0.5,
+                              child: PageView(
+                                controller: pageController,
+                                onPageChanged: (value) {
+                                  setState(() {
+                                    page = value;
+                                  });                        
+                                },
+                                children: [
+                                  Container(
+                                    height: screenHeight * 0.5,
+                                    child: ListView.builder(
+                                      itemCount: powerSourceList.length,
+                                      itemBuilder: (context, index) {
+                                        print(powerSourceList[index]);
+                                        var powerSource = powerSourceList[index];
+                                        return powerSourceWidget(powerSource);
+                                      },
+                                    )
+                                  ),
+                                  // home appliances
+                                  Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                                          height: screenHeight * 0.1,
+                                          child: DropdownButtonFormField(                                    
+                                            onChanged: (value) {
+                                              setState(() {
+                                                homeAppliancesList.add({
+                                                  'index' : homeAppliancesList.length,
+                                                  'appliances_type': value,
+                                                  'duration_or_cycles': TextEditingController(),
+                                                });
+                                              });
+                                            },
+                                            hint: Text('Select Home Appliances'),
+                                            decoration: InputDecoration(
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                                borderSide: BorderSide(
+                                                  color: Color.fromARGB(255, 99, 146, 38),
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              contentPadding: EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 0,
+                                              ),
+                                            ),
+                                            items: [
+                                              DropdownMenuItem(
+                                                child: Text('Air Conditioner'),
+                                                value: 'Air Conditioner',
+                                              ),
+                                              DropdownMenuItem(
+                                                child: Text('Refrigerator'),
+                                                value: 'Refrigerator',
+                                              ),
+                                              DropdownMenuItem(
+                                                child: Text('Washing Machine'),
+                                                value: 'Washing Machine',
+                                              ),
+                                              DropdownMenuItem(
+                                                child: Text('TV'),
+                                                value: 'TV',
+                                              ),
+                                              DropdownMenuItem(
+                                                child: Text('Dishwasher'),
+                                                value: 'Dishwasher',
+                                              ),
+                                              DropdownMenuItem(
+                                                child: Text('Stove'),
+                                                value: 'Stove',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          height: screenHeight * 0.4,
+                                          child: ListView.builder(
+                                            itemCount: homeAppliancesList.length,
+                                            itemBuilder: (context, index) {
+                                              var homeAppliance = homeAppliancesList[index];
+                                              return homeApplianceWidget(homeAppliance);
+                                            },
+                                          )
+                                        ),
+                                      ],
+                                    ) 
+                                  ),
+                                ],
+                              )
+                            ),
                         ],
-                      )
+                      ),
                     ),
+                  ),
                 ],
               ),
-            ),
+            )
           ),
-        ],
-      ),
-    )
-    )
+          if (isLoading)
+            const Opacity(
+              opacity: 0.8,
+              child: ModalBarrier(dismissible: false, color: Colors.black),
+            ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ]
+      )
     );
   }
 }
