@@ -341,7 +341,7 @@ class _HomeViewState extends State<HomeView> {
                     children: [
                       SizedBox(width: 20),
                       Text(
-                          'Your latest carbon footprint: ${thisEmissionData?.latestMonth.monthlyTotalEmission ?? 'N/A'} kg',
+                          'Your latest carbon footprint: ${thisEmissionData?.latestMonth.monthlyTotalEmission?.toStringAsFixed(2) ?? 'N/A'} kg',
                           style: TextStyle(
                             color: Color.fromRGBO(151, 151, 151, 1),
                             fontWeight: FontWeight.w500,
@@ -468,7 +468,7 @@ class _HomeViewState extends State<HomeView> {
               ),
               IconButton(
                 icon: Icon(
-                  Icons.group_rounded,
+                  Icons.person_rounded,
                 ),
                 onPressed: () {
                   Navigator.of(context).pushNamed(
@@ -478,9 +478,13 @@ class _HomeViewState extends State<HomeView> {
               ),
               IconButton(
                 icon: Icon(
-                  Icons.person_rounded,
+                  Icons.group_rounded,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    "leaderboard",
+                  );
+                },
               )
             ],
           ),
