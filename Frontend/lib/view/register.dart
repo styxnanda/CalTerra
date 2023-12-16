@@ -14,21 +14,22 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
-Future<void> register(BuildContext context, String email, String username, String name, String password) async {
+Future<void> register(BuildContext context, String email, String username,
+    String name, String password) async {
   final ApiService apiService = ApiService();
   final response = await apiService.postRequest(
-    "account/register", 
-    {
-      'email': email,
-      'username': username,
-      'name': name,
-      'password': password,
-    }, 
-    urlEncoded: true
-  );
+      "account/register",
+      {
+        'email': email,
+        'username': username,
+        'name': name,
+        'password': password,
+      },
+      urlEncoded: true);
 
-  if(response.statusCode == 200){
-    _showDialog(context, "Register Success", "You have successfully registered", () {
+  if (response.statusCode == 200) {
+    _showDialog(context, "Register Success", "You have successfully registered",
+        () {
       Navigator.of(context).pushNamed("login");
     });
   } else {
@@ -38,17 +39,15 @@ Future<void> register(BuildContext context, String email, String username, Strin
   }
 }
 
-void _showDialog(BuildContext context, String title, String content, VoidCallback onPressed) {
+void _showDialog(BuildContext context, String title, String content,
+    VoidCallback onPressed) {
   showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: Text(title),
-      content: Text(content),
-      actions: [
-        TextButton(onPressed: onPressed, child: Text("OK"))
-      ],
-    )
-  );
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: [TextButton(onPressed: onPressed, child: Text("OK"))],
+          ));
 }
 
 class _RegisterState extends State<Register> {
@@ -57,10 +56,17 @@ class _RegisterState extends State<Register> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool _obscurePassword = true;
   String email = "";
   String username = "";
   String name = "";
   String password = "";
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +134,16 @@ class _RegisterState extends State<Register> {
                         margin: EdgeInsets.only(bottom: 5),
                         child: TextFormField(
                           controller: _passwordController,
-                          decoration: InputDecoration(hintText: "Password"),
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            suffixIcon: IconButton(
+                              icon: Icon(_obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                              onPressed: _togglePasswordVisibility,
+                            ),
+                          ),
+                          obscureText: _obscurePassword,
                         ),
                       ),
                       Container(
@@ -214,13 +229,15 @@ class _RegisterState extends State<Register> {
                           'assets/image/google.png',
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text(
-                          "Register with Google",
-                          style: TextStyle(color: Colors.white),
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 10),
+                          child: Text(
+                            "Register with Google",
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                   style: ElevatedButton.styleFrom(

@@ -63,11 +63,18 @@ void _showDialog(BuildContext context, String title, String content, VoidCallbac
 class _LoginState extends State<Login> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   String username = "";
   String password = "";
 
   bool isLoading = false;
+
+  void _togglePasswordVisibility(){
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +123,12 @@ class _LoginState extends State<Login> {
                           ),
                           TextFormField(
                             controller: _passwordController,
-                            decoration: InputDecoration(hintText: "Password"),
+                            decoration: InputDecoration(hintText: "Password",
+                            suffixIcon: IconButton(
+                              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                              onPressed: _togglePasswordVisibility,
+                            )),
+                            obscureText: _obscurePassword,
                           ),
                           Container(
                             margin: EdgeInsets.only(top: 20),

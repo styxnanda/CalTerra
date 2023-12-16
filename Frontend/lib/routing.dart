@@ -1,6 +1,7 @@
 import 'package:calterra/view/foodEmission.dart';
 import 'package:calterra/view/history.dart';
 import 'package:calterra/view/homeEmission.dart';
+import 'package:calterra/view/leaderboard.dart';
 import 'package:calterra/view/login.dart';
 import 'package:calterra/view/register.dart';
 import 'package:calterra/view/home.dart';
@@ -78,6 +79,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case "rehome":
       return PageTransition(
         child: const HomeView(),
+        type: PageTransitionType.topToBottom,
+        settings: settings,
+      );
+    case "leaderboard":
+      return PageTransition(
+        child: const Leaderboard(),
         type: PageTransitionType.topToBottom,
         settings: settings,
       );
